@@ -1,0 +1,14 @@
+azure.storage.blob
+boto3
+google-cloud-speech
+google-cloud-storage
+omegaconf
+protobuf
+pvfalcon
+pyannote.audio
+pyannote.metrics
+requests
+simple-diarizer
+soundfile
+torch
+tqdm

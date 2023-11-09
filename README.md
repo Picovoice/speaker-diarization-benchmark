@@ -1,2 +1,209 @@
-# speaker-diarization-benchmark
-speaker diarization benchmark framework
+# Speaker Diarization Benchmark
+
+Made in Vancouver, Canada by [Picovoice](https://picovoice.ai)
+
+This repo is a minimalist and extensible framework for benchmarking different speaker diarization engines.
+
+## Table of Contents
+
+- [Data](#data)
+- [Metrics](#metrics)
+- [Engines](#engines)
+- [Usage](#usage)
+- [Results](#results)
+
+## Data
+
+### [VoxConverse](https://www.robots.ox.ac.uk/~vgg/data/voxconverse/)
+
+VoxConverse features speakers conversing in multiple languages. In this benchmark, we employ cloud-based
+Speech-to-Text engines equipped with speaker diarization capabilities. Therefore, for benchmarking purposes, the English
+subset of the dataset is used.
+
+### Setup
+
+1. Clone the [VoxConverse repository](https://github.com/joonson/voxconverse). This repository contains only the labels
+   in the form of `.rttm` files.
+2. Download the test set from the links provided in the `README.md` file of the cloned repository and extract the
+   downloaded files.
+
+## Metrics
+
+### Diarization Error Rate (DER)
+
+The Diarization Error Rate (DER) is the most common metric for evaluating speaker diarization systems. DER is
+calculated by summing the time duration of three distinct errors: speaker confusion (ERR), false alarms (FA), and missed
+detections (MISS). This total duration is then divided by the overall time span.
+
+### Jaccard Error Rate (JER)
+
+The Jaccard Error Rate (JER) is a newly developed metric for evaluating speaker diarization, specifically designed for
+DIHARD II. It is based on the Jaccard similarity index, which measures the similarity between two sets of segments. JER
+assigns equal weight to each speaker's contribution, regardless of their speech duration. For a more in-depth
+understanding, refer to the second DIHARD's [paper](https://arxiv.org/abs/1906.07839).
+
+### Real Time Factor
+
+The real-time factor (RTF) is determined by comparing the CPU processing time to the length of the input speech file. A
+lower RTF indicates higher computational efficiency in an engine. Unfortunately, this metric had to be excluded for
+cloud-based engines or those exclusively runnable on GPU.
+As for the others, we ensured a fair comparison by running them on a single CPU core.
+
+## Engines
+
+- [Amazon Transcribe](https://aws.amazon.com/transcribe/)
+- [Azure Speech-to-Text](https://azure.microsoft.com/en-us/services/cognitive-services/speech-to-text/)
+- [Google Speech-to-Text](https://cloud.google.com/speech-to-text)
+- [Picovoice Falcon](https://picovoice.ai/)
+- [pyannote.audio](https://github.com/pyannote/pyannote-audio)
+
+## Usage
+
+This benchmark has been developed and tested on `Ubuntu 20.04` using `Python 3.8`.
+
+1. Set up your dataset as described in the [Data](#data) section.
+2. Install the requirements:
+
+  ```console
+  pip3 install -r requirements.txt
+  ```
+
+3. In the following commands, substitute `${DATASET}` with one of the supported datasets, `${DATA_FOLDER}` with the
+   dataset folder path, and `${LABEL_FOLDER}` with the label folder path. Refer to [Data](#data) for more information.
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine ${ENGINE} \
+...
+```
+
+Additionally, specify the desired engine using the `--engine` flag. For instructions on each engine and the required
+flags, consult the section below.
+
+### Amazon Transcribe Instructions
+
+Create an S3 bucket. Then, substitute `${AWS_PROFILE}` with your AWS profile name and `${AWS_S3_BUCKET_NAME}`
+with the created S3 bucket name.
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine AWS_TRANSCRIBE \
+--aws-profile ${AWS_PROFILE} \
+--aws-s3-bucket-name ${AWS_S3_BUCKET_NAME}
+```
+
+### Azure Speech-to-Text Instructions
+
+A client library for the Speech to Text REST API should be generated, as outlined in
+the [documentation](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/swagger-documentation).
+
+Then, create an Azure storage account and container, and replace `${AZURE_STORAGE_ACCOUNT_NAME}` with your Azure storage
+account name, `${AZURE_STORAGE_ACCOUNT_KEY}` with your Azure storage account key, and `${AZURE_STORAGE_CONTAINER_NAME}`
+with your Azure storage container name.
+
+Finally, replace `${AZURE_SUBSCRIPTION_KEY}` with your Azure subscription key and `${AZURE_REGION}` with your Azure
+region.
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine AZURE_SPEECH_TO_TEXT \
+--azure-storage-account-name ${AZURE_STORAGE_ACCOUNT_NAME} \
+--azure-storage-account-key ${AZURE_STORAGE_ACCOUNT_KEY} \
+--azure-storage-container-name ${AZURE_STORAGE_CONTAINER_NAME} \
+--azure-subscription-key ${AZURE_SUBSCRIPTION_KEY} \
+--azure-region ${AZURE_REGION}
+```
+
+### Google Speech-to-Text Instructions
+
+Create a Google cloud storage bucket. Then, replace `${GCP_CREDENTIALS}` with the path to your GCP credentials
+file (`.json`) and `${GCP_BUCKET_NAME}` with your GCP bucket name.
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine GOOGLE_SPEECH_TO_TEXT \
+--gcp-credentials ${GCP_CREDENTIALS} \
+--gcp-bucket-name ${GCP_BUCKET_NAME} \
+```
+
+To utilize the enhanced model, replace the `GOOGLE_SPEECH_TO_TEXT` engine with `GOOGLE_SPEECH_TO_TEXT_ENHANCED`.
+
+### Picovoice Falcon Instructions
+
+Replace `${PICOVOICE_ACCESS_KEY}` with AccessKey obtained from [Picovoice Console](https://console.picovoice.ai/).
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine PICVOICE_FALCON \
+--picovoice-access-key ${PICOVOICE_ACCESS_KEY}
+```
+
+### pyannote.audio Instructions
+
+Obtain your authentication token to download pretrained models by visiting
+their [Hugging Face page](https://huggingface.co/pyannote/speaker-diarization).
+Then replace `${PYANNOTE_AUTH_TOKEN}` with the authentication token.
+
+```console
+python3 benchmark.py \
+--dataset ${DATASET} \
+--data-folder ${DATA_FOLDER} \
+--label-folder ${LABEL_FOLDER} \
+--engine PYANNOTE \
+--pyannote-auth-token ${PYANNOTE_AUTH_TOKEN}
+```
+
+## Results
+
+### Diarization Error Rate (DER)
+
+|      Engine       | VoxConverse (English) |
+|:-----------------:|:---------------------:|
+|      Amazon       |        11.05%         |
+|       Azure       |        15.69%         |
+|      Google       |        50.16%         |
+| Google - Enhanced |        23.98%         |
+| Picovoice Falcon  |        10.34%         |
+|  pyannote.audio   |         8.95%         |
+
+![](./results/plots/VoxConverse/diarization_error_rate.png)
+
+### Jaccard Error Rate (JER)
+
+|        Engine         | VoxConverse (English) |
+|:---------------------:|:---------------------:|
+|   Amazon Transcribe   |        29.83%         |
+| Azure Speech-to-Text  |        30.09%         | 
+| Google Speech-to-Text |        83.36%         |
+|      NVIDIA NeMo      |        57.57%         | 
+|   Picovoice Falcon    |        19.92%         |
+|    pyannote.audio     |        28.11%         |
+
+![](./results/plots/VoxConverse/jaccard_error_rate.png)
+
+### RTF
+
+Measurement is carried on an `Ubuntu 20.04` machine with AMD CPU (`AMD Ryzen 7 5700X (16) @ 3.400G`), 64 GB of
+RAM, and NVMe storage.
+
+|      Engine      | RTF  |
+|:----------------:|:----:|
+| Picovoice Falcon | 0.00 |
+|  pyannote.audio  | 0.00 |
+
+![](./results/plots/realtime_factor_comparison.png)
