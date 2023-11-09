@@ -1,0 +1,29 @@
+{
+  "language": "en",
+  "dictionaries": [
+    "dict"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "dict",
+      "path": "./dict.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    // binaries
+    "**/*.dll",
+    "**/*.dylib",
+    "**/*.mp3",
+    "**/*.pv",
+    "**/*.so",
+    "**/*.wav",
+    "**/*.json",
+    "**/cache/**",
+    "**/results/**",
+    "**/env/**",
+    "**/pretrained_models/**",
+    "**/tmp/**",
+    "**/__pycache__/**"
+  ]
+}
