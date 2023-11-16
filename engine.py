@@ -103,7 +103,7 @@ class PicovoiceFalconEngine(Engine):
 
 
 class PyAnnoteEngine(Engine):
-    def __init__(self, auth_token: str, use_gpu: bool = False) -> None:
+    def __init__(self, auth_token: str, use_gpu: bool = True) -> None:
         if use_gpu and torch.cuda.is_available():
             torch_device = torch.device("cuda")
         else:
@@ -114,7 +114,7 @@ class PyAnnoteEngine(Engine):
             torch_device = torch.device("cpu")
 
         self._pretrained_pipeline = Pipeline.from_pretrained(
-            checkpoint_path="pyannote/speaker-diarization-3.0",
+            checkpoint_path="pyannote/speaker-diarization-3.1",
             use_auth_token=auth_token,
         )
         self._pretrained_pipeline.to(torch_device)
