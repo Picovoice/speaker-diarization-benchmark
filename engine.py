@@ -109,7 +109,7 @@ class PicovoiceFalconEngine(Engine):
         return True
 
     def __str__(self):
-        return "Picovoice Falcon"
+        return Engines.PICOVOICE_FALCON.value
 
 
 class PyAnnoteEngine(Engine):
@@ -136,7 +136,7 @@ class PyAnnoteEngine(Engine):
         return True
 
     def __str__(self) -> str:
-        return f"pyannote.audio"
+        return Engines.PYANNOTE.value
 
 
 class AWSTranscribeEngine(Engine):
@@ -226,7 +226,7 @@ class AWSTranscribeEngine(Engine):
         pass
 
     def __str__(self):
-        return "AWS Transcribe"
+        return Engines.AWS_TRANSCRIBE.value
 
 
 class GoogleSpeechToTextEngine(Engine):
@@ -288,7 +288,7 @@ class GoogleSpeechToTextEngine(Engine):
         pass
 
     def __str__(self):
-        return "Google Speech-to-Text"
+        return Engines.GOOGLE_SPEECH_TO_TEXT.value
 
 
 class GoogleSpeechToTextEnhancedEngine(GoogleSpeechToTextEngine):
@@ -308,7 +308,7 @@ class GoogleSpeechToTextEnhancedEngine(GoogleSpeechToTextEngine):
     )
 
     def __str__(self):
-        return "Google Speech-to-Text Enhanced"
+        return Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED.value
 
 
 class SimpleDiarizerEngine(Engine):
@@ -343,7 +343,7 @@ class SimpleDiarizerEngine(Engine):
         return True
 
     def __str__(self) -> str:
-        return f"simple_diarizer"
+        return Engines.SIMPLE_DIARIZER.value
 
 
 class NvidiaNeMoEngine(Engine):
@@ -393,7 +393,7 @@ class NvidiaNeMoEngine(Engine):
         return False
 
     def __str__(self) -> str:
-        return f"NVIDIA NeMo"
+        return Engines.NVIDIA_NEMO.value
 
 
 class AzureSpeechToTextEngine(Engine):
@@ -535,4 +535,4 @@ class AzureSpeechToTextEngine(Engine):
         return False
 
     def __str__(self):
-        return "Azure Speech-to-Text"
+        return Engines.AZURE_SPEECH_TO_TEXT.value

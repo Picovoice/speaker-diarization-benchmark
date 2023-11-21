@@ -1,4 +1,5 @@
-diarization error rate:           diarization error rate     total  correct correct false alarm false alarm missed detection missed detection confusion confusion
+diarization error rate:
+          diarization error rate     total  correct correct false alarm false alarm missed detection missed detection confusion confusion
                                %                          %                       %                                 %                   %
 item                                                                                                                                     
 ytula.wav                   3.40    993.24   988.50   99.52       29.04        2.92             4.48             0.45      0.26      0.03
@@ -195,7 +196,8 @@ dohag.wav                   4.34     39.62    39.62  100.00        1.72        4
 xmyyy.wav                  27.39    242.52   182.37   75.20        6.27        2.58            53.14            21.91      7.01      2.89
 kmunk.wav                   4.38    371.08   363.04   97.83        8.23        2.22             3.47             0.94      4.56      1.23
 TOTAL                      11.05 105844.31 98561.81   93.12     4413.75        4.17          2152.75             2.03   5129.75      4.85
-jaccard error rate:           jaccard error rate speaker count speaker error
+jaccard error rate:
+          jaccard error rate speaker count speaker error
                            %                            
 item                                                    
 ytula.wav               2.59          7.00          0.18

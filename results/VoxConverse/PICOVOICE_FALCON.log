@@ -1,4 +1,5 @@
-diarization error rate:           diarization error rate     total  correct correct false alarm false alarm missed detection missed detection confusion confusion
+diarization error rate:
+          diarization error rate     total  correct correct false alarm false alarm missed detection missed detection confusion confusion
                                %                          %                       %                                 %                   %
 item                                                                                                                                     
 ytula.wav                   3.50    993.24   977.11   98.38       18.65        1.88            15.98             1.61      0.14      0.01
@@ -15,7 +16,7 @@ gukoa.wav                  31.49    224.78   160.38   71.35        6.39        2
 zowse.wav                  13.21   1034.24   972.56   94.04       74.98        7.25            21.49             2.08     40.19      3.89
 zsgto.wav                   6.85   1079.74  1055.02   97.71       49.24        4.56            13.74             1.27     10.98      1.02
 euqef.wav                   2.21     25.25    24.81   98.26        0.12        0.47             0.44             1.74      0.00      0.00
-ybhwz.wav                   2.72    484.02   479.45   99.06        8.59        1.77             2.43             0.50      2.14      0.44
+ybhwz.wav                   2.72    484.02   479.45   99.05        8.59        1.77             2.43             0.50      2.14      0.44
 qadia.wav                  22.25    250.19   204.26   81.64        9.75        3.90            10.69             4.27     35.23     14.08
 isxwc.wav                   7.51    121.15   115.39   95.24        3.34        2.76             1.72             1.42      4.04      3.34
 qlrry.wav                  38.96    299.31   225.47   75.33       42.78       14.29            14.79             4.94     59.04     19.73
@@ -183,7 +184,7 @@ lkikz.wav                   4.73   1108.07  1066.21   96.22       10.56        0
 pkwrt.wav                   3.06    150.24   145.87   97.09        0.22        0.15             1.29             0.86      3.08      2.05
 epygx.wav                  12.85   1027.79   981.63   95.51       85.97        8.36            17.46             1.70     28.70      2.79
 poucc.wav                  19.06    739.59   634.95   85.85       36.34        4.91            23.15             3.13     81.49     11.02
-kvkje.wav                   9.92    858.46   841.01   97.97       67.67        7.88            16.98             1.98      0.47      0.05
+kvkje.wav                   9.91    858.46   841.01   97.97       67.67        7.88            16.98             1.98      0.47      0.05
 eazeq.wav                   5.73     86.56    85.24   98.47        3.64        4.20             1.24             1.43      0.09      0.10
 ltgmz.wav                  31.71    161.00   111.37   69.17        1.43        0.89            44.93            27.91      4.70      2.92
 tpnyf.wav                   8.36   1065.62  1035.58   97.18       59.10        5.55             9.54             0.90     20.50      1.92
@@ -194,8 +195,9 @@ fvhrk.wav                   4.12   1125.74  1105.69   98.22       26.28        2
 dohag.wav                   2.46     39.62    39.13   98.76        0.49        1.23             0.49             1.24      0.00      0.00
 xmyyy.wav                  23.07    242.52   192.91   79.54        6.35        2.62            29.70            12.25     19.91      8.21
 kmunk.wav                   3.80    371.08   361.53   97.43        4.55        1.23             7.84             2.11      1.72      0.46
-TOTAL                      10.34 105844.31 98511.97   93.07     3612.89        3.41          2983.36             2.82   4348.98      4.11
-jaccard error rate:           jaccard error rate speaker count speaker error
+TOTAL                      10.34 105844.31 98511.98   93.07     3612.90        3.41          2983.36             2.82   4348.98      4.11
+jaccard error rate:
+          jaccard error rate speaker count speaker error
                            %                            
 item                                                    
 ytula.wav               2.62          7.00          0.18
