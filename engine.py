@@ -23,6 +23,16 @@ from simple_diarizer.diarizer import Diarizer
 
 from util import load_rttm, rttm_to_annotation
 
+# NUM_THREADS = os.cpu_count()
+# os.environ["OMP_NUM_THREADS"] = str(NUM_THREADS)
+# os.environ["MKL_NUM_THREADS"] = str(NUM_THREADS)
+# torch.set_num_threads(NUM_THREADS)
+# torch.set_num_interop_threads(NUM_THREADS)
+os.environ["OMP_NUM_THREADS"] = str(1)
+os.environ["MKL_NUM_THREADS"] = str(1)
+torch.set_num_threads(1)
+torch.set_num_interop_threads(1)
+
 
 class Engines(Enum):
     AWS_TRANSCRIBE = "AWS_TRANSCRIBE"
@@ -103,14 +113,10 @@ class PicovoiceFalconEngine(Engine):
 
 
 class PyAnnoteEngine(Engine):
-    def __init__(self, auth_token: str, use_gpu: bool = True) -> None:
+    def __init__(self, auth_token: str, use_gpu: bool = False) -> None:
         if use_gpu and torch.cuda.is_available():
             torch_device = torch.device("cuda")
         else:
-            os.environ["OMP_NUM_THREADS"] = "1"
-            os.environ["MKL_NUM_THREADS"] = "1"
-            torch.set_num_threads(1)
-            torch.set_num_interop_threads(1)
             torch_device = torch.device("cpu")
 
         self._pretrained_pipeline = Pipeline.from_pretrained(
@@ -124,7 +130,7 @@ class PyAnnoteEngine(Engine):
         return self._pretrained_pipeline(path)
 
     def cleanup(self) -> None:
-        del self._pretrained_pipeline
+        self._pretrained_pipeline = None
 
     def is_offline(self) -> bool:
         return True
@@ -284,6 +290,7 @@ class GoogleSpeechToTextEngine(Engine):
     def __str__(self):
         return "Google Speech-to-Text"
 
+
 class GoogleSpeechToTextEnhancedEngine(GoogleSpeechToTextEngine):
     _diarization_config = speech.SpeakerDiarizationConfig(
         enable_speaker_diarization=True,
@@ -299,8 +306,10 @@ class GoogleSpeechToTextEnhancedEngine(GoogleSpeechToTextEngine):
         model="latest_long",
         use_enhanced=True,
     )
+
     def __str__(self):
         return "Google Speech-to-Text Enhanced"
+
 
 class SimpleDiarizerEngine(Engine):
     def __init__(self, use_gpu: bool = False) -> None:
@@ -389,12 +398,12 @@ class NvidiaNeMoEngine(Engine):
 
 class AzureSpeechToTextEngine(Engine):
     def __init__(
-        self,
-        storage_account_key: str,
-        storage_account_name: str,
-        storage_container_name: str,
-        subscription_key: str,
-        region: str,
+            self,
+            storage_account_key: str,
+            storage_account_name: str,
+            storage_container_name: str,
+            subscription_key: str,
+            region: str,
     ) -> None:
         self._storage_account_key = storage_account_key
         self._storage_account_name = storage_account_name
@@ -434,7 +443,7 @@ class AzureSpeechToTextEngine(Engine):
         typename = type(paginated_object).__name__
         auth_settings = ["api_key"]
         while paginated_object.next_link:
-            link = paginated_object.next_link[len(api.api_client.configuration.host) :]
+            link = paginated_object.next_link[len(api.api_client.configuration.host):]
             paginated_object, status, headers = api.api_client.call_api(
                 link, "GET", response_type=typename, auth_settings=auth_settings
             )

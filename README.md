@@ -38,16 +38,23 @@ detections (MISS). This total duration is then divided by the overall time span.
 ### Jaccard Error Rate (JER)
 
 The Jaccard Error Rate (JER) is a newly developed metric for evaluating speaker diarization, specifically designed for
-DIHARD II. It is based on the Jaccard similarity index, which measures the similarity between two sets of segments. JER
-assigns equal weight to each speaker's contribution, regardless of their speech duration. For a more in-depth
+DIHARD II. It is based on the Jaccard similarity index, which measures the similarity between two sets of segments. In
+short, JER assigns equal weight to each speaker's contribution, regardless of their speech duration. For a more in-depth
 understanding, refer to the second DIHARD's [paper](https://arxiv.org/abs/1906.07839).
 
-### Real Time Factor
+### Total Memory Usage
 
-The real-time factor (RTF) is determined by comparing the CPU processing time to the length of the input speech file. A
-lower RTF indicates higher computational efficiency in an engine. Unfortunately, this metric had to be excluded for
-cloud-based engines or those exclusively runnable on GPU.
-As for the others, we ensured a fair comparison by running them on a single CPU core.
+This metric provides insight into the memory consumption of the diarization engine during its processing of audio files.
+It presents the total memory utilized, measured in gigabytes (GB).
+
+### Core-Hour
+
+The Core-Hour metric is employed when evaluating the computational efficiency of the diarization engine. This metric
+assesses computational time by indicating the utilization of a single CPU core over one hour. Increased computational
+efficiency is indicated by lower Core-Hour values, enabling faster processing of longer audio files.
+
+[!NOTE]
+`Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
 
 ## Engines
 
@@ -68,11 +75,13 @@ This benchmark has been developed and tested on `Ubuntu 20.04` using `Python 3.8
   pip3 install -r requirements.txt
   ```
 
-3. In the following commands, substitute `${DATASET}` with one of the supported datasets, `${DATA_FOLDER}` with the
-   dataset folder path, and `${LABEL_FOLDER}` with the label folder path. Refer to [Data](#data) for more information.
+3. In the commands that follow, replace `${DATASET}` with a supported dataset, `${DATA_FOLDER}` with the path to the
+   dataset folder, and `${LABEL_FOLDER}` with the path to the label folder. For further details, refer to
+   the [Data](#data) section. Substituting `${BENCHMARK_SCRIPT}` with `benchmark.py`, `benchmark_cpu.py`,
+   or `benchmark_mem.py` will perform the accuracy, CPU usage, or memory usage benchmarks, respectively.
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -80,16 +89,25 @@ python3 benchmark.py \
 ...
 ```
 
+4. For the memory benchmark, you should also run `mem_monitor.py` in a separate terminal window. This script will
+   monitor the memory usage of the diarization engine.
+
+```console
+python3 mem_monitor.py --engine ${ENGINE}
+```
+
+when the benchmark is complete, press `Ctrl + C` to stop the memory monitor.
+
 Additionally, specify the desired engine using the `--engine` flag. For instructions on each engine and the required
 flags, consult the section below.
 
-### Amazon Transcribe Instructions
+#### Amazon Transcribe Instructions
 
 Create an S3 bucket. Then, substitute `${AWS_PROFILE}` with your AWS profile name and `${AWS_S3_BUCKET_NAME}`
 with the created S3 bucket name.
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -98,7 +116,7 @@ python3 benchmark.py \
 --aws-s3-bucket-name ${AWS_S3_BUCKET_NAME}
 ```
 
-### Azure Speech-to-Text Instructions
+#### Azure Speech-to-Text Instructions
 
 A client library for the Speech to Text REST API should be generated, as outlined in
 the [documentation](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/swagger-documentation).
@@ -111,7 +129,7 @@ Finally, replace `${AZURE_SUBSCRIPTION_KEY}` with your Azure subscription key an
 region.
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -123,13 +141,13 @@ python3 benchmark.py \
 --azure-region ${AZURE_REGION}
 ```
 
-### Google Speech-to-Text Instructions
+#### Google Speech-to-Text Instructions
 
 Create a Google cloud storage bucket. Then, replace `${GCP_CREDENTIALS}` with the path to your GCP credentials
 file (`.json`) and `${GCP_BUCKET_NAME}` with your GCP bucket name.
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -140,12 +158,12 @@ python3 benchmark.py \
 
 To utilize the enhanced model, replace the `GOOGLE_SPEECH_TO_TEXT` engine with `GOOGLE_SPEECH_TO_TEXT_ENHANCED`.
 
-### Picovoice Falcon Instructions
+#### Picovoice Falcon Instructions
 
 Replace `${PICOVOICE_ACCESS_KEY}` with AccessKey obtained from [Picovoice Console](https://console.picovoice.ai/).
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -153,14 +171,14 @@ python3 benchmark.py \
 --picovoice-access-key ${PICOVOICE_ACCESS_KEY}
 ```
 
-### pyannote.audio Instructions
+#### pyannote.audio Instructions
 
 Obtain your authentication token to download pretrained models by visiting
 their [Hugging Face page](https://huggingface.co/pyannote/speaker-diarization).
 Then replace `${PYANNOTE_AUTH_TOKEN}` with the authentication token.
 
 ```console
-python3 benchmark.py \
+python3 {BENCHMARK_SCRIPT} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -169,6 +187,9 @@ python3 benchmark.py \
 ```
 
 ## Results
+
+Measurement is carried on an `Ubuntu 20.04` machine with AMD CPU (`AMD Ryzen 7 5700X (16) @ 3.400G`), 64 GB of
+RAM, and NVMe storage.
 
 ### Diarization Error Rate (DER)
 
@@ -196,14 +217,20 @@ python3 benchmark.py \
 
 ![](./results/plots/VoxConverse/jaccard_error_rate.png)
 
-### RTF
-
-Measurement is carried on an `Ubuntu 20.04` machine with AMD CPU (`AMD Ryzen 7 5700X (16) @ 3.400G`), 64 GB of
-RAM, and NVMe storage.
+### Total Memory Usage
 
 |      Engine      | RTF  |
 |:----------------:|:----:|
 | Picovoice Falcon | 0.00 |
 |  pyannote.audio  | 0.00 |
 
-![](./results/plots/realtime_factor_comparison.png)
+![](./results/plots/mem_usage_comparison.png)
+
+### Core-Hour
+
+|      Engine      | RTF  |
+|:----------------:|:----:|
+| Picovoice Falcon | 0.00 |
+|  pyannote.audio  | 0.00 |
+
+![](./results/plots/cpu_usage_comparison.png)

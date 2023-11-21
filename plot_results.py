@@ -4,7 +4,6 @@ import os
 from typing import *
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from benchmark import RESULTS_FOLDER
 from dataset import Datasets
@@ -64,38 +63,28 @@ ENGINE_PRINT_NAMES = {
     Engines.PYANNOTE: "pyannote",
 }
 
-
 METRIC_NAME = [
     "diarization error rate",
     "jaccard error rate",
 ]
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)
-    parser.add_argument("--show", action="store_true")
-    args = parser.parse_args()
-    dataset_name = args.dataset
-    engines_results = dict()
-    sorted_engines = sorted(ENGINES, key=lambda e: (ENGINE_ORDER_KEYS.get(e, 1), ENGINE_PRINT_NAMES.get(e, e.value)))
-    for engine_type in sorted_engines:
-        results_path = os.path.join(RESULTS_FOLDER, dataset_name, engine_type.value + ".json")
-        if not os.path.exists(results_path):
-            raise ValueError(f"No results file for engine `{engine_type.value}` on dataset `{dataset_name}`")
-
-        with open(results_path, "r") as f:
-            results_json = json.load(f)
-
-        engines_results[engine_type] = results_json
-
-    save_path = os.path.join(RESULTS_FOLDER, "plots")
-    os.makedirs(save_path, exist_ok=True)
-
+def _plot_accuracy(
+        engine_list: List[Engines],
+        result_path: str,
+        save_path: str,
+        show: bool) -> None:
     for metric in METRIC_NAME:
         fig, ax = plt.subplots(figsize=(6, 4))
-        for engine_type in sorted_engines:
-            engine_value = engines_results[engine_type][metric] * 100
+        for engine_type in engine_list:
+            result_path = os.path.join(result_path, engine_type.value + ".json")
+            if not os.path.exists(result_path):
+                continue
+
+            with open(result_path, "r") as f:
+                results_json = json.load(f)
+
+            engine_value = results_json[metric] * 100
             ax.bar(
                 ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
                 engine_value,
@@ -119,53 +108,138 @@ def main() -> None:
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_visible(False)
         ax.set_yticks([])
-        plot_path = os.path.join(save_path, dataset_name, metric.replace(" ", "_") + ".png")
+        plot_path = os.path.join(save_path, metric.replace(" ", "_") + ".png")
         os.makedirs(os.path.dirname(plot_path), exist_ok=True)
         plt.savefig(plot_path)
 
-        if args.show:
+        if show:
             plt.show()
 
         plt.close()
 
-    fig, ax = plt.subplots(figsize=(6, 4))
-    max_process_time = 0
-    for engine_type in sorted_engines:
-        engine_value = engines_results[engine_type].get("realtime factor")
-        if engine_value is None:
+
+def _plot_cpu(
+        engine_list: List[Engines],
+        result_path: str,
+        save_path: str,
+        show: bool) -> None:
+    engines_results_cpu = dict()
+    for engine_type in engine_list:
+        result_path = os.path.join(RESULTS_FOLDER, engine_type.value + "_cpu.json")
+        if not os.path.exists(result_path):
             continue
-        process_time = 60 * engine_value
-        max_process_time = max(max_process_time, process_time)
-        ax.bar(
+
+        with open(result_path, "r") as f:
+            results_json = json.load(f)
+
+        engines_results_cpu[engine_type] = results_json
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    xlim = 0
+    for engine_type, engine_value in engines_results_cpu.items():
+        processing_capacity = engine_value["total_audio_sec"] / engine_value["total_processing_sec"]
+        xlim = max(xlim, processing_capacity)
+        ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
-            process_time,
-            width=0.5,
+            processing_capacity,
+            # width=0.5,
             color=ENGINE_COLORS.get(engine_type, WHITE),
             edgecolor="none",
             label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
         )
         ax.text(
+            processing_capacity + 3,
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
-            process_time + 0.1,
-            f"{process_time:.1f} min",
+            f"{processing_capacity:.2f}\nhours",
             ha="center",
-            va="bottom",
+            va="center",
             fontsize=12,
             color=ENGINE_COLORS.get(engine_type, BLACK),
         )
 
     ax.spines["top"].set_visible(False)
-    ax.spines["left"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    ax.set_yticks([])
-    plt.ylim([0, max_process_time + 10])
-    plt.title("Process time for an hour of audio", fontsize=12)
-    plt.savefig(os.path.join(save_path, "realtime_factor_comparison.png"))
+    plt.xlim([0, xlim + 5])
+    ax.set_xticks([])
+    plt.title("Audio Processing Capacity per Core-Hour", fontsize=12)
+    plt.savefig(os.path.join(save_path, "cpu_usage_comparison.png"))
 
-    if args.show:
+    if show:
         plt.show()
 
     plt.close()
+
+
+def _plot_mem(
+        engine_list: List[Engines],
+        result_path: str,
+        save_path: str,
+        show: bool) -> None:
+    engines_results_mem = dict()
+
+    for engine_type in engine_list:
+        result_path = os.path.join(RESULTS_FOLDER, engine_type.value + "_mem.json")
+        if not os.path.exists(result_path):
+            continue
+
+        with open(result_path, "r") as f:
+            results_json = json.load(f)
+
+        engines_results_mem[engine_type] = results_json
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    xlim = 0
+    for engine_type, engine_value in engines_results_mem.items():
+        max_mem_usage = engine_value["max_mem_MB"] / 1024
+        xlim = max(xlim, max_mem_usage)
+        ax.barh(
+            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            max_mem_usage,
+            # width=0.5,
+            color=ENGINE_COLORS.get(engine_type, WHITE),
+            edgecolor="none",
+            label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+        )
+        ax.text(
+            max_mem_usage + 0.3,
+            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            f"{max_mem_usage:.2f}GiB",
+            ha="center",
+            va="center",
+            fontsize=12,
+            color=ENGINE_COLORS.get(engine_type, BLACK),
+        )
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.set_xticks([])
+    plt.xlim([0, xlim + 1])
+    plt.title("Maximum Memory Usage", fontsize=12)
+    plt.savefig(os.path.join(save_path, "mem_usage_comparison.png"))
+
+    if show:
+        plt.show()
+
+    plt.close()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)
+    parser.add_argument("--show", action="store_true")
+    args = parser.parse_args()
+    dataset_name = args.dataset
+    sorted_engines = sorted(ENGINES, key=lambda e: (ENGINE_ORDER_KEYS.get(e, 1), ENGINE_PRINT_NAMES.get(e, e.value)))
+
+    save_path = os.path.join(RESULTS_FOLDER, "plots")
+    os.makedirs(save_path, exist_ok=True)
+
+    result_dataset_path = os.path.join(RESULTS_FOLDER, dataset_name)
+    _plot_accuracy(sorted_engines, result_dataset_path, os.path.join(save_path, dataset_name), args.show)
+    _plot_cpu(sorted_engines, result_dataset_path, save_path, args.show)
+    _plot_mem(sorted_engines, result_dataset_path, save_path, args.show)
 
 
 if __name__ == "__main__":

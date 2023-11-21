@@ -7,13 +7,20 @@ from pyannote.core import Annotation
 
 from util import load_rttm, rttm_to_annotation, get_audio_length
 
+Sample = Tuple[str, str, float]
+
 
 class Datasets(Enum):
     VOX_CONVERSE = "VoxConverse"
 
 
 class Dataset(object):
+    @property
     def size(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    def samples(self) -> Sequence[Sample]:
         raise NotImplementedError()
 
     def get(self, index: int) -> Tuple[str, float, Annotation]:
@@ -75,8 +82,13 @@ class VoxConverse(Dataset):
             audio_length = get_audio_length(file)
             self._samples.append((file, label_path, audio_length))
 
+    @property
     def size(self) -> int:
         return len(self._samples)
+
+    @property
+    def samples(self) -> Sequence[Sample]:
+        return self._samples
 
     def get(self, index: int) -> Tuple[str, float, Annotation]:
         audio_path, label_path, audio_length = self._samples[index]
@@ -92,4 +104,5 @@ class VoxConverse(Dataset):
 __all__ = [
     "Datasets",
     "Dataset",
+    "Sample"
 ]
