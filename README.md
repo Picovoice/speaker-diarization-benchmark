@@ -77,11 +77,12 @@ This benchmark has been developed and tested on `Ubuntu 20.04` using `Python 3.8
 
 3. In the commands that follow, replace `${DATASET}` with a supported dataset, `${DATA_FOLDER}` with the path to the
    dataset folder, and `${LABEL_FOLDER}` with the path to the label folder. For further details, refer to
-   the [Data](#data) section. Substituting `${BENCHMARK_SCRIPT}` with `benchmark.py`, `benchmark_cpu.py`,
-   or `benchmark_mem.py` will perform the accuracy, CPU usage, or memory usage benchmarks, respectively.
+   the [Data](#data). Replace `${TYPE}` with `ACCURACY`, `CPU`, or `MEMORY` for accuracy, CPU benchmark, and memory
+   benchmark, respectively.
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
+--type ${TYPE} \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -107,7 +108,7 @@ Create an S3 bucket. Then, substitute `${AWS_PROFILE}` with your AWS profile nam
 with the created S3 bucket name.
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -129,7 +130,7 @@ Finally, replace `${AZURE_SUBSCRIPTION_KEY}` with your Azure subscription key an
 region.
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -147,7 +148,7 @@ Create a Google cloud storage bucket. Then, replace `${GCP_CREDENTIALS}` with th
 file (`.json`) and `${GCP_BUCKET_NAME}` with your GCP bucket name.
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -163,7 +164,7 @@ To utilize the enhanced model, replace the `GOOGLE_SPEECH_TO_TEXT` engine with `
 Replace `${PICOVOICE_ACCESS_KEY}` with AccessKey obtained from [Picovoice Console](https://console.picovoice.ai/).
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
@@ -178,7 +179,7 @@ their [Hugging Face page](https://huggingface.co/pyannote/speaker-diarization).
 Then replace `${PYANNOTE_AUTH_TOKEN}` with the authentication token.
 
 ```console
-python3 {BENCHMARK_SCRIPT} \
+python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
