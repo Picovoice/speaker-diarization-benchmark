@@ -53,7 +53,8 @@ The Core-Hour metric is employed when evaluating the computational efficiency of
 assesses computational time by indicating the utilization of a single CPU core over one hour. Increased computational
 efficiency is indicated by lower Core-Hour values, enabling faster processing of longer audio files.
 
-> [!NOTE] `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
+> [!NOTE] 
+> `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
 
 ## Engines
 
