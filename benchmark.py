@@ -134,15 +134,16 @@ def _process_worker(
         samples: Sequence[Tuple[str, str, float]]) -> WorkerResult:
     engine = Engine.create(Engines(engine_type), **engine_params)
     total_audio_sec = 0
+    process_time = 0
 
-    tic = perf_counter()
     for sample in samples:
         audio_path, _, audio_length = sample
         total_audio_sec += audio_length
+        tic = perf_counter()
         _ = engine.diarization(audio_path)
-    toc = perf_counter()
+        toc = perf_counter()
+        process_time += (toc - tic)
 
-    process_time = toc - tic
     engine.cleanup()
     return WorkerResult(total_audio_sec, process_time)
 
@@ -158,7 +159,7 @@ def _process_cpu_process_pool(
     if num_samples is not None:
         samples = samples[:num_samples]
 
-    chunk_size = math.ceil(len(samples) / num_workers)
+    chunk_size = math.floor(len(samples) / num_workers)
     futures = []
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
@@ -179,52 +180,10 @@ def _process_cpu_process_pool(
     results = {
         "total_audio_time_sec": total_audio_time_sec,
         "total_process_time_sec": total_process_time_sec,
+        "num_workers": num_workers,
     }
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
-
-
-def _process_cpu(
-        engine: Engine,
-        dataset: Dataset,
-        num_samples: Optional[int] = None) -> None:
-    total_audio_time_sec = 0
-    total_process_time_sec = 0
-
-    samples = list(dataset.samples[:])
-    if num_samples is not None:
-        samples = samples[:num_samples]
-
-    for sample in tqdm(samples):
-        audio_path, _, audio_length = sample
-        total_audio_time_sec += audio_length
-        tic = perf_counter()
-        _ = engine.diarization(audio_path)
-        toc = perf_counter()
-        total_process_time_sec += toc - tic
-
-    results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
-    results = {
-        "total_audio_time_sec": total_audio_time_sec,
-        "total_process_time_sec": total_process_time_sec,
-    }
-
-    with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
-
-def _process_mem(
-        engine: Engine,
-        dataset: Dataset,
-        num_samples: Optional[int] = None) -> None:
-
-    samples = list(dataset.samples[:])
-    if num_samples is not None:
-        samples = samples[:num_samples]
-
-    for sample in tqdm(samples):
-        audio_path, _, audio_length = sample
-        _ = engine.diarization(audio_path)
-
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -262,19 +221,19 @@ def main() -> None:
     elif args.type == BenchmarkTypes.CPU.value:
         if not engine.is_offline():
             raise ValueError(f"CPU benchmark is only supported for offline engines")
-        if engine.is_single_threaded():
-            _process_cpu_process_pool(
-                engine=args.engine,
-                engine_params=engine_args,
-                dataset=dataset,
-                num_samples=args.num_samples)
+        _process_cpu_process_pool(
+            engine=args.engine,
+            engine_params=engine_args,
+            dataset=dataset,
+            num_samples=args.num_samples)
     elif args.type == BenchmarkTypes.MEMORY.value:
         if not engine.is_offline():
             raise ValueError(f"Memory benchmark is only supported for offline engines")
         print("Please make sure the `mem_monitor.py` script is running and then press enter to continue...")
         input()
-        _process_mem(
+        _process_cpu_process_pool(
             engine=args.engine,
+            engine_params=engine_args,
             dataset=dataset,
             num_samples=args.num_samples)
 
