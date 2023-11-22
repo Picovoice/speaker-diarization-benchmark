@@ -219,10 +219,10 @@ RAM, and NVMe storage.
 
 ### Total Memory Usage
 
-|      Engine      | Memory Usage(GB) |
-|:----------------:|:----------------:|
-|  pyannote.audio  |       1.52       |
-| Picovoice Falcon |       0.13       |
+|      Engine      | Memory Usage (GB) |
+|:----------------:|:-----------------:|
+|  pyannote.audio  |       1.52        |
+| Picovoice Falcon |       0.13        |
 
 ![](./results/plots/mem_usage_comparison.png)
 
