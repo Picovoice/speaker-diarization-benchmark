@@ -39,16 +39,14 @@ def _engine_params_parser(in_args: argparse.Namespace) -> Dict[str, Any]:
     elif in_args.engine == Engines.AWS_TRANSCRIBE.value:
         if in_args.aws_profile is None:
             raise ValueError(f"Engine {in_args.engine} requires --aws-profile")
-        # TODO:
-        # os.environ["AWS_PROFILE"] = input_arguments.aws_profile
+        os.environ["AWS_PROFILE"] = in_args.aws_profile
         if in_args.aws_s3_bucket_name is None:
             raise ValueError(f"Engine {in_args.engine} requires --aws-s3-bucket-name")
         kwargs_engine.update(bucket_name=in_args.aws_s3_bucket_name)
     elif in_args.engine in [Engines.GOOGLE_SPEECH_TO_TEXT.value, Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED.value]:
         if in_args.gcp_credentials is None:
             raise ValueError(f"Engine {in_args.engine} requires --gcp-credentials")
-        # TODO:
-        # os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = input_arguments.gcp_credentials
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = in_args.gcp_credentials
         if in_args.gcp_bucket_name is None:
             raise ValueError(f"Engine {in_args.engine} requires --gcp-bucket-name")
         kwargs_engine.update(bucket_name=in_args.gcp_bucket_name)

@@ -72,16 +72,7 @@ class Engine(object):
 
 class PicovoiceFalconEngine(Engine):
     def __init__(self, access_key: str) -> None:
-        # TODO: remove hard-coded paths
-        zoo_dev_path = os.path.expanduser("~/work/gitlab/zoo-dev")
-        model_path = os.path.join(zoo_dev_path, "res/falcon/param/falcon_params.pv")
-        library_path = os.path.join(zoo_dev_path, "build/release/x86_64/src/falcon/libpv_falcon.so")
-
-        self._falcon = pvfalcon.Falcon(
-            access_key=access_key,
-            model_path=model_path,
-            library_path=library_path,
-        )
+        self._falcon = pvfalcon.create(access_key=access_key)
         super().__init__()
 
     def diarization(self, path: str) -> "Annotation":
@@ -139,24 +130,9 @@ class AWSTranscribeEngine(Engine):
     def __init__(self, bucket_name: str) -> None:
         self._bucket_name = bucket_name
 
-        # TODO: remove hard-coded paths
-        self._aws_access_key = "AKIA47ZYJCPNTC73E3NZ"
-        self._aws_secret_access_key = "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"
-        self._region_name = "us-east-2"
+        self._storage = boto3.client("s3")
 
-        self._storage = boto3.client(
-            "s3",
-            aws_access_key_id=self._aws_access_key,
-            aws_secret_access_key=self._aws_secret_access_key,
-            region_name=self._region_name,
-        )
-
-        self._transcribe = boto3.client(
-            "transcribe",
-            aws_access_key_id=self._aws_access_key,
-            aws_secret_access_key=self._aws_secret_access_key,
-            region_name=self._region_name,
-        )
+        self._transcribe = boto3.client("transcribe")
         super().__init__()
 
     def diarization(self, path: str) -> "Annotation":
@@ -305,91 +281,6 @@ class GoogleSpeechToTextEnhancedEngine(GoogleSpeechToTextEngine):
 
     def __str__(self):
         return Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED.value
-
-
-class SimpleDiarizerEngine(Engine):
-    def __init__(self, use_gpu: bool = False) -> None:
-        if not use_gpu:
-            os.environ["CUDA_VISIBLE_DEVICES"] = ""
-            os.environ["OMP_NUM_THREADS"] = "1"
-            os.environ["MKL_NUM_THREADS"] = "1"
-            torch.set_num_threads(1)
-            torch.set_num_interop_threads(1)
-
-        self._diar = Diarizer(embed_model="ecapa", cluster_method="sc")
-
-    def diarization(self, path: str) -> "Annotation":
-        segments = self._diar.diarize(path)
-        return self._segments_to_annotation(segments)
-
-    @staticmethod
-    def _segments_to_annotation(segments: Sequence[Dict[str, Union[int, float]]]) -> "Annotation":
-        annotation = Annotation()
-        for segment in segments:
-            start = segment["start"]
-            end = segment["end"]
-            annotation[Segment(start, end)] = segment["label"]
-
-        return annotation.support()
-
-    def cleanup(self) -> None:
-        pass
-
-    def is_offline(self) -> bool:
-        return True
-
-    def __str__(self) -> str:
-        return Engines.SIMPLE_DIARIZER.value
-
-
-class NvidiaNeMoEngine(Engine):
-    def __init__(self, model_config: str) -> None:
-        self._model_config_path = model_config
-
-    def diarization(self, path: str) -> "Annotation":
-        from nemo.collections.asr.models import ClusteringDiarizer
-
-        manifest_path = tempfile.TemporaryDirectory().name
-
-        meta = {
-            "audio_filepath": path,
-            "offset": 0,
-            "duration": None,
-            "label": "infer",
-            "text": "-",
-            "num_speakers": None,
-            "rttm_filepath": None,
-            "uem_filepath": None,
-        }
-        with open(manifest_path, "w") as fp:
-            json.dump(meta, fp)
-            fp.write("\n")
-
-        output_folder = tempfile.TemporaryDirectory().name
-        os.makedirs(output_folder, exist_ok=True)
-
-        config = OmegaConf.load(self._model_config_path)
-        config.diarizer.manifest_filepath = (manifest_path,)
-        config.diarizer.out_dir = output_folder
-        config.diarizer.oracle_vad = False
-        config.diarizer.clustering.parameters.oracle_num_speakers = False
-
-        sd_model = ClusteringDiarizer(cfg=config)
-        sd_model.diarize()
-
-        output_path = os.path.join(output_folder, "pred_rttms", os.path.basename(path).replace(".wav", ".rttm"))
-        rttm = load_rttm(output_path)
-
-        return rttm_to_annotation(rttm)
-
-    def cleanup(self) -> None:
-        pass
-
-    def is_offline(self) -> bool:
-        return False
-
-    def __str__(self) -> str:
-        return Engines.NVIDIA_NEMO.value
 
 
 class AzureSpeechToTextEngine(Engine):
