@@ -11,6 +11,11 @@ from engine import Engines
 
 Color = Tuple[float, float, float]
 
+import matplotlib
+
+fm = matplotlib.font_manager
+fm._get_fontconfig_fonts.cache_clear()
+
 
 def rgb_from_hex(x: str) -> Color:
     x = x.strip("# ")
@@ -144,7 +149,7 @@ def _plot_cpu(
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
             processing_capacity,
-            # width=0.5,
+            height=0.5,
             color=ENGINE_COLORS.get(engine_type, WHITE),
             edgecolor="none",
             label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
@@ -164,6 +169,7 @@ def _plot_cpu(
     ax.spines["right"].set_visible(False)
     plt.xlim([0, xlim + 5])
     ax.set_xticks([])
+    ax.set_ylim([-0.5, 1.5])
     plt.title("Audio Processing Capacity per Core-Hour", fontsize=12)
     plt.savefig(os.path.join(save_path, "cpu_usage_comparison.png"))
 
@@ -173,6 +179,7 @@ def _plot_cpu(
     plt.close()
 
     return num_workers
+
 
 def _plot_mem(
         engine_list: List[Engines],
@@ -193,20 +200,18 @@ def _plot_mem(
         engines_results_mem[engine_type] = results_json
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    xlim = 0
     for engine_type, engine_value in engines_results_mem.items():
         max_mem_usage = engine_value["max_mem_GiB"] / num_workers[engine_type]
-        xlim = max(xlim, max_mem_usage)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
             max_mem_usage,
-            # width=0.5,
+            height=0.5,
             color=ENGINE_COLORS.get(engine_type, WHITE),
             edgecolor="none",
             label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
         )
         ax.text(
-            max_mem_usage + 0.3,
+            max_mem_usage + 0.15,
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
             f"{max_mem_usage:.2f}GiB",
             ha="center",
@@ -219,7 +224,7 @@ def _plot_mem(
     ax.spines["bottom"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_xticks([])
-    plt.xlim([0, xlim + 1])
+    ax.set_ylim([-0.5, 1.5])
     plt.title("Total Memory Usage per Core", fontsize=12)
     plt.savefig(os.path.join(save_path, "mem_usage_comparison.png"))
 

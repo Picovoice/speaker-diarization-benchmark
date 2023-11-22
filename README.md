@@ -16,9 +16,9 @@ This repo is a minimalist and extensible framework for benchmarking different sp
 
 ### [VoxConverse](https://www.robots.ox.ac.uk/~vgg/data/voxconverse/)
 
-VoxConverse features speakers conversing in multiple languages. In this benchmark, we employ cloud-based
+VoxConverse is a well-known dataset in speaker diarization field which features speakers conversing in multiple languages. In this benchmark, we employ cloud-based
 Speech-to-Text engines equipped with speaker diarization capabilities. Therefore, for benchmarking purposes, the English
-subset of the dataset is used.
+subset of the test section of the dataset is used.
 
 ### Setup
 
@@ -32,8 +32,8 @@ subset of the dataset is used.
 ### Diarization Error Rate (DER)
 
 The Diarization Error Rate (DER) is the most common metric for evaluating speaker diarization systems. DER is
-calculated by summing the time duration of three distinct errors: speaker confusion (ERR), false alarms (FA), and missed
-detections (MISS). This total duration is then divided by the overall time span.
+calculated by summing the time duration of three distinct errors: speaker confusion, false alarms, and missed
+detections. This total duration is then divided by the overall time span.
 
 ### Jaccard Error Rate (JER)
 

@@ -185,6 +185,7 @@ def _process_cpu_process_pool(
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
 
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)
