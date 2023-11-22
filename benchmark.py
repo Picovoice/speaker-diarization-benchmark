@@ -269,10 +269,15 @@ def main() -> None:
                 dataset=dataset,
                 num_samples=args.num_samples)
         else:
-            _process_cpu(
-                engine=engine,
+            _process_cpu_process_pool(
+                engine=args.engine,
+                engine_params=engine_args,
                 dataset=dataset,
                 num_samples=args.num_samples)
+            # _process_cpu(
+            #     engine=engine,
+            #     dataset=dataset,
+            #     num_samples=args.num_samples)
     elif args.type == BenchmarkTypes.MEMORY.value:
         if not engine.is_offline():
             raise ValueError(f"Memory benchmark is only supported for offline engines")
