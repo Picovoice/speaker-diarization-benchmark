@@ -135,31 +135,30 @@ def _process_worker(
     engine = Engine.create(Engines(engine_type), **engine_params)
     total_audio_sec = 0
 
-    print(f" len samples: {len(samples)}")
     tic = perf_counter()
     for sample in samples:
         audio_path, _, audio_length = sample
-        print(f"Processing {audio_path}...")
         total_audio_sec += audio_length
         _ = engine.diarization(audio_path)
     toc = perf_counter()
 
     process_time = toc - tic
     engine.cleanup()
-    print(f"Total audio time: {total_audio_sec} sec")
     return WorkerResult(total_audio_sec, process_time)
 
 
-
-def _process_cpu(
+def _process_cpu_process_pool(
         engine: str,
         engine_params: Dict[str, Any],
-        dataset: Dataset) -> None:
+        dataset: Dataset,
+        num_samples: Optional[int] = None) -> None:
 
-    num_workers = psutil.cpu_count(logical=False)
+    num_workers = os.cpu_count()
 
     samples = list(dataset.samples[:])
-    samples = samples[:8]
+    if num_samples is not None:
+        samples = samples[:num_samples]
+
     chunk_size = math.ceil(len(samples) / num_workers)
     futures = []
 
@@ -181,10 +180,66 @@ def _process_cpu(
     results = {
         "total_audio_time_sec": total_audio_time_sec,
         "total_process_time_sec": total_process_time_sec,
-        "num_workers": num_workers,
     }
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
+
+def _process_cpu(
+        engine: Engine,
+        dataset: Dataset,
+        num_samples: Optional[int] = None) -> None:
+
+    total_audio_time_sec = 0
+    total_process_time_sec = 0
+
+    samples = list(dataset.samples[:])
+    if num_samples is not None:
+        samples = samples[:num_samples]
+
+    for sample in tqdm(samples):
+        audio_path, _, audio_length = sample
+        total_audio_time_sec += audio_length
+        tic = perf_counter()
+        _ = engine.diarization(audio_path)
+        toc = perf_counter()
+        total_process_time_sec += toc - tic
+
+    results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
+    results = {
+        "total_audio_time_sec": total_audio_time_sec,
+        "total_process_time_sec": total_process_time_sec,
+    }
+
+    with open(results_path, "w") as f:
+        json.dump(results, f, indent=2)
+
+    # samples = list(dataset.samples[:])
+    # samples = samples[:8]
+    # chunk_size = math.ceil(len(samples) / num_workers)
+    # futures = []
+    #
+    # with ProcessPoolExecutor(max_workers=num_workers) as executor:
+    #     for i in range(num_workers):
+    #         chunk = samples[i * chunk_size: (i + 1) * chunk_size]
+    #         future = executor.submit(
+    #             _process_worker,
+    #             engine_type=engine,
+    #             engine_params=engine_params,
+    #             samples=chunk)
+    #         futures.append(future)
+    #
+    # res = [f.result() for f in futures]
+    # total_audio_time_sec = sum([r.total_audio_sec for r in res])
+    # total_process_time_sec = sum([r.process_time_sec for r in res])
+    #
+    # results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
+    # results = {
+    #     "total_audio_time_sec": total_audio_time_sec,
+    #     "total_process_time_sec": total_process_time_sec,
+    #     "num_workers": num_workers,
+    # }
+    # with open(results_path, "w") as f:
+    #     json.dump(results, f, indent=2)
 
 
 def _process_mem(
@@ -241,6 +296,7 @@ def main() -> None:
     parser.add_argument("--picovoice-access-key")
     parser.add_argument("--pyannote-auth-token")
     parser.add_argument("--type", choices=[bt.value for bt in BenchmarkTypes], required=True)
+    parser.add_argument("--num-samples", type=int)
     args = parser.parse_args()
 
     engine_args = _engine_params_parser(args)
@@ -256,10 +312,22 @@ def main() -> None:
     elif args.type == BenchmarkTypes.CPU.value:
         if not engine.is_offline():
             raise ValueError(f"CPU benchmark is only supported for offline engines")
-        _process_cpu(args.engine, engine_args, dataset)
+        if engine.is_single_threaded():
+            _process_cpu_process_pool(
+                engine=args.engine,
+                engine_params=engine_args,
+                dataset=dataset,
+                num_samples=args.num_samples)
+        else:
+           _process_cpu(
+                engine=engine,
+                dataset=dataset,
+                num_samples=args.num_samples)
     elif args.type == BenchmarkTypes.MEMORY.value:
         if not engine.is_offline():
             raise ValueError(f"Memory benchmark is only supported for offline engines")
+        print("Please make sure the `mem_monitor.py` script is running and then press enter to continue...")
+        input()
         _process_mem(args.engine, engine_args, dataset)
 
 if __name__ == "__main__":

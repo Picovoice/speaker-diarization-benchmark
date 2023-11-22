@@ -53,7 +53,7 @@ The Core-Hour metric is employed when evaluating the computational efficiency of
 assesses computational time by indicating the utilization of a single CPU core over one hour. Increased computational
 efficiency is indicated by lower Core-Hour values, enabling faster processing of longer audio files.
 
-> [!NOTE] 
+> [!NOTE]
 > `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
 
 ## Engines
@@ -214,24 +214,24 @@ RAM, and NVMe storage.
 | Google Speech-to-Text |        83.36%         |
 |      NVIDIA NeMo      |        57.57%         | 
 |   Picovoice Falcon    |        19.92%         |
-|    pyannote.audio     |        28.11%         |
+|    pyannote.audio     |        27.45%         |
 
 ![](./results/plots/VoxConverse/jaccard_error_rate.png)
 
 ### Total Memory Usage
 
-|      Engine      | RTF  |
-|:----------------:|:----:|
-| Picovoice Falcon | 0.00 |
-|  pyannote.audio  | 0.00 |
+|      Engine      | Memory Usage (GB) |
+|:----------------:|:-----------------:|
+| Picovoice Falcon |       0.00        |
+|  pyannote.audio  |       0.00        |
 
 ![](./results/plots/mem_usage_comparison.png)
 
 ### Core-Hour
 
-|      Engine      | RTF  |
-|:----------------:|:----:|
-| Picovoice Falcon | 0.00 |
-|  pyannote.audio  | 0.00 |
+|      Engine      | Core-Hour |
+|:----------------:|:---------:|
+| Picovoice Falcon |   0.00    |
+|  pyannote.audio  |   0.00    |
 
 ![](./results/plots/cpu_usage_comparison.png)

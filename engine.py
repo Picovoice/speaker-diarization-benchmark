@@ -23,15 +23,11 @@ from simple_diarizer.diarizer import Diarizer
 
 from util import load_rttm, rttm_to_annotation
 
-# NUM_THREADS = os.cpu_count()
-# os.environ["OMP_NUM_THREADS"] = str(NUM_THREADS)
-# os.environ["MKL_NUM_THREADS"] = str(NUM_THREADS)
-# torch.set_num_threads(NUM_THREADS)
-# torch.set_num_interop_threads(NUM_THREADS)
-os.environ["OMP_NUM_THREADS"] = str(1)
-os.environ["MKL_NUM_THREADS"] = str(1)
-torch.set_num_threads(1)
-torch.set_num_interop_threads(1)
+NUM_THREADS = os.cpu_count()
+os.environ["OMP_NUM_THREADS"] = str(NUM_THREADS)
+os.environ["MKL_NUM_THREADS"] = str(NUM_THREADS)
+torch.set_num_threads(NUM_THREADS)
+torch.set_num_interop_threads(NUM_THREADS)
 
 
 class Engines(Enum):
@@ -52,6 +48,9 @@ class Engine(object):
         raise NotImplementedError()
 
     def is_offline(self) -> bool:
+        raise NotImplementedError()
+
+    def is_single_threaded(self) -> bool:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -108,6 +107,9 @@ class PicovoiceFalconEngine(Engine):
     def is_offline(self) -> bool:
         return True
 
+    def is_single_threaded(self) -> bool:
+        return True
+
     def __str__(self):
         return Engines.PICOVOICE_FALCON.value
 
@@ -134,6 +136,9 @@ class PyAnnoteEngine(Engine):
 
     def is_offline(self) -> bool:
         return True
+
+    def is_single_threaded(self) -> bool:
+        return False
 
     def __str__(self) -> str:
         return Engines.PYANNOTE.value
