@@ -152,7 +152,6 @@ def _process_cpu_process_pool(
         engine_params: Dict[str, Any],
         dataset: Dataset,
         num_samples: Optional[int] = None) -> None:
-
     num_workers = os.cpu_count()
 
     samples = list(dataset.samples[:])
@@ -184,11 +183,11 @@ def _process_cpu_process_pool(
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
 
+
 def _process_cpu(
         engine: Engine,
         dataset: Dataset,
         num_samples: Optional[int] = None) -> None:
-
     total_audio_time_sec = 0
     total_process_time_sec = 0
 
@@ -213,69 +212,20 @@ def _process_cpu(
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
 
-    # samples = list(dataset.samples[:])
-    # samples = samples[:8]
-    # chunk_size = math.ceil(len(samples) / num_workers)
-    # futures = []
-    #
-    # with ProcessPoolExecutor(max_workers=num_workers) as executor:
-    #     for i in range(num_workers):
-    #         chunk = samples[i * chunk_size: (i + 1) * chunk_size]
-    #         future = executor.submit(
-    #             _process_worker,
-    #             engine_type=engine,
-    #             engine_params=engine_params,
-    #             samples=chunk)
-    #         futures.append(future)
-    #
-    # res = [f.result() for f in futures]
-    # total_audio_time_sec = sum([r.total_audio_sec for r in res])
-    # total_process_time_sec = sum([r.process_time_sec for r in res])
-    #
-    # results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
-    # results = {
-    #     "total_audio_time_sec": total_audio_time_sec,
-    #     "total_process_time_sec": total_process_time_sec,
-    #     "num_workers": num_workers,
-    # }
-    # with open(results_path, "w") as f:
-    #     json.dump(results, f, indent=2)
-
-
 def _process_mem(
-        engine: str,
-        engine_params: Dict[str, Any],
-        dataset: Dataset) -> None:
-
-    num_workers = psutil.cpu_count(logical=False)
+        engine: Engine,
+        dataset: Dataset,
+        num_samples: Optional[int] = None) -> None:
 
     samples = list(dataset.samples[:])
-    samples = samples[:20]
-    chunk_size = math.ceil(len(samples) / num_workers)
-    futures = []
+    if num_samples is not None:
+        samples = samples[:num_samples]
 
-    with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        for i in range(num_workers):
-            chunk = samples[i * chunk_size: (i + 1) * chunk_size]
-            future = executor.submit(
-                _process_worker,
-                engine_type=engine,
-                engine_params=engine_params,
-                samples=chunk)
-            futures.append(future)
+    for sample in tqdm(samples):
+        audio_path, _, audio_length = sample
+        _ = engine.diarization(audio_path)
 
-    res = [f.results() for f in futures]
-    total_audio_time_sec = sum([r.total_audio_sec for r in res])
-    total_process_time_sec = sum([r.process_time_sec for r in res])
 
-    results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
-    results = {
-        "total_audio_time_sec": total_audio_time_sec,
-        "total_process_time_sec": total_process_time_sec,
-        "num_workers": num_workers,
-    }
-    with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)
@@ -319,7 +269,7 @@ def main() -> None:
                 dataset=dataset,
                 num_samples=args.num_samples)
         else:
-           _process_cpu(
+            _process_cpu(
                 engine=engine,
                 dataset=dataset,
                 num_samples=args.num_samples)
@@ -328,7 +278,11 @@ def main() -> None:
             raise ValueError(f"Memory benchmark is only supported for offline engines")
         print("Please make sure the `mem_monitor.py` script is running and then press enter to continue...")
         input()
-        _process_mem(args.engine, engine_args, dataset)
+        _process_mem(
+            engine=args.engine,
+            engine_params=engine_args,
+            dataset=dataset)
+
 
 if __name__ == "__main__":
     main()
