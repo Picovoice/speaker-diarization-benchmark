@@ -280,8 +280,8 @@ def main() -> None:
         input()
         _process_mem(
             engine=args.engine,
-            engine_params=engine_args,
-            dataset=dataset)
+            dataset=dataset,
+            num_samples=args.num_samples)
 
 
 if __name__ == "__main__":
