@@ -1,11 +1,9 @@
 import argparse
 import math
-import os
 from collections import namedtuple
 from concurrent.futures import ProcessPoolExecutor
 from time import perf_counter
 
-import psutil
 from pyannote.metrics.diarization import (
     DiarizationErrorRate,
     JaccardErrorRate,
@@ -146,7 +144,7 @@ def _process_worker(
     return WorkerResult(total_audio_sec, process_time)
 
 
-def _process_cpu_process_pool(
+def _process_pool(
         engine: str,
         engine_params: Dict[str, Any],
         dataset: Dataset,
@@ -220,7 +218,7 @@ def main() -> None:
     elif args.type == BenchmarkTypes.CPU.value:
         if not engine.is_offline():
             raise ValueError(f"CPU benchmark is only supported for offline engines")
-        _process_cpu_process_pool(
+        _process_pool(
             engine=args.engine,
             engine_params=engine_args,
             dataset=dataset,
@@ -230,7 +228,7 @@ def main() -> None:
             raise ValueError(f"Memory benchmark is only supported for offline engines")
         print("Please make sure the `mem_monitor.py` script is running and then press enter to continue...")
         input()
-        _process_cpu_process_pool(
+        _process_pool(
             engine=args.engine,
             engine_params=engine_args,
             dataset=dataset,

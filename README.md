@@ -16,9 +16,9 @@ This repo is a minimalist and extensible framework for benchmarking different sp
 
 ### [VoxConverse](https://www.robots.ox.ac.uk/~vgg/data/voxconverse/)
 
-VoxConverse is a well-known dataset in speaker diarization field which features speakers conversing in multiple languages. In this benchmark, we employ cloud-based
-Speech-to-Text engines equipped with speaker diarization capabilities. Therefore, for benchmarking purposes, the English
-subset of the test section of the dataset is used.
+VoxConverse is a well-known dataset in the speaker diarization field, showcasing speakers conversing in multiple
+languages. In this benchmark, we utilize cloud-based Speech-to-Text engines equipped with speaker diarization
+capabilities. Hence, for benchmarking purposes, we specifically employ the English subset of the dataset's test section.
 
 ### Setup
 
@@ -49,9 +49,8 @@ It presents the total memory utilized, measured in gigabytes (GB).
 
 ### Core-Hour
 
-The Core-Hour metric is employed when evaluating the computational efficiency of the diarization engine. This metric
-assesses computational time by indicating the utilization of a single CPU core over one hour. Increased computational
-efficiency is indicated by lower Core-Hour values, enabling faster processing of longer audio files.
+The Core-Hour metric is used to evaluate the computational efficiency of the diarization engine. This metric indicates
+how much audio can be processed in an hour using a single CPU core.
 
 > [!NOTE]
 > `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
@@ -220,18 +219,18 @@ RAM, and NVMe storage.
 
 ### Total Memory Usage
 
-|      Engine      | Memory Usage (GB) |
-|:----------------:|:-----------------:|
-| Picovoice Falcon |       0.00        |
-|  pyannote.audio  |       0.00        |
+|      Engine      | Memory Usage(GB) |
+|:----------------:|:----------------:|
+|  pyannote.audio  |       1.52       |
+| Picovoice Falcon |       0.13       |
 
 ![](./results/plots/mem_usage_comparison.png)
 
 ### Core-Hour
 
-|      Engine      | Core-Hour |
-|:----------------:|:---------:|
-| Picovoice Falcon |   0.00    |
-|  pyannote.audio  |   0.00    |
+|      Engine      | Audio Processed (hours) |
+|:----------------:|:-----------------------:|
+|  pyannote.audio  |          0.23           |
+| Picovoice Falcon |          25.49          |
 
 ![](./results/plots/cpu_usage_comparison.png)

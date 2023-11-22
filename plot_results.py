@@ -225,7 +225,7 @@ def _plot_mem(
     ax.spines["right"].set_visible(False)
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
-    plt.title("Total Memory Usage per Core", fontsize=12)
+    plt.title("Total Memory Usage per instance", fontsize=12)
     plt.savefig(os.path.join(save_path, "mem_usage_comparison.png"))
 
     if show:
