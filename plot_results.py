@@ -122,7 +122,7 @@ def _plot_cpu(
         engine_list: List[Engines],
         result_path: str,
         save_path: str,
-        show: bool) -> None:
+        show: bool) -> Dict[Engines, int]:
     engines_results_cpu = dict()
     for engine_type in engine_list:
         engine_result_path = os.path.join(result_path, engine_type.value + "_cpu.json")
@@ -136,8 +136,10 @@ def _plot_cpu(
 
     fig, ax = plt.subplots(figsize=(6, 4))
     xlim = 0
+    num_workers = dict()
     for engine_type, engine_value in engines_results_cpu.items():
         processing_capacity = engine_value["total_audio_time_sec"] / engine_value["total_process_time_sec"]
+        num_workers[engine_type] = engine_value["num_workers"]
         xlim = max(xlim, processing_capacity)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
@@ -170,9 +172,11 @@ def _plot_cpu(
 
     plt.close()
 
+    return num_workers
 
 def _plot_mem(
         engine_list: List[Engines],
+        num_workers: Dict[Engines, int],
         result_path: str,
         save_path: str,
         show: bool) -> None:
@@ -191,7 +195,7 @@ def _plot_mem(
     fig, ax = plt.subplots(figsize=(6, 4))
     xlim = 0
     for engine_type, engine_value in engines_results_mem.items():
-        max_mem_usage = engine_value["max_mem_GiB"]
+        max_mem_usage = engine_value["max_mem_GiB"] / num_workers[engine_type]
         xlim = max(xlim, max_mem_usage)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
@@ -216,7 +220,7 @@ def _plot_mem(
     ax.spines["right"].set_visible(False)
     ax.set_xticks([])
     plt.xlim([0, xlim + 1])
-    plt.title("Maximum Memory Usage", fontsize=12)
+    plt.title("Total Memory Usage per Core", fontsize=12)
     plt.savefig(os.path.join(save_path, "mem_usage_comparison.png"))
 
     if show:
@@ -238,8 +242,8 @@ def main() -> None:
 
     result_dataset_path = os.path.join(RESULTS_FOLDER, dataset_name)
     _plot_accuracy(sorted_engines, result_dataset_path, os.path.join(save_path, dataset_name), args.show)
-    _plot_mem(sorted_engines, result_dataset_path, save_path, args.show)
-    _plot_cpu(sorted_engines, result_dataset_path, save_path, args.show)
+    num_workers = _plot_cpu(sorted_engines, result_dataset_path, save_path, args.show)
+    _plot_mem(sorted_engines, num_workers, result_dataset_path, save_path, args.show)
 
 
 if __name__ == "__main__":
