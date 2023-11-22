@@ -120,15 +120,16 @@ def _plot_accuracy(
 
 def _plot_cpu(
         engine_list: List[Engines],
+        result_path: str,
         save_path: str,
         show: bool) -> None:
     engines_results_cpu = dict()
     for engine_type in engine_list:
-        result_path = os.path.join(RESULTS_FOLDER, engine_type.value + "_cpu.json")
-        if not os.path.exists(result_path):
+        engine_result_path = os.path.join(result_path, engine_type.value + "_cpu.json")
+        if not os.path.exists(engine_result_path):
             continue
 
-        with open(result_path, "r") as f:
+        with open(engine_result_path, "r") as f:
             results_json = json.load(f)
 
         engines_results_cpu[engine_type] = results_json
@@ -136,7 +137,7 @@ def _plot_cpu(
     fig, ax = plt.subplots(figsize=(6, 4))
     xlim = 0
     for engine_type, engine_value in engines_results_cpu.items():
-        processing_capacity = engine_value["total_audio_sec"] / engine_value["total_processing_sec"]
+        processing_capacity = engine_value["total_audio_time_sec"] / engine_value["total_process_time_sec"]
         xlim = max(xlim, processing_capacity)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
@@ -172,16 +173,17 @@ def _plot_cpu(
 
 def _plot_mem(
         engine_list: List[Engines],
+        result_path: str,
         save_path: str,
         show: bool) -> None:
     engines_results_mem = dict()
 
     for engine_type in engine_list:
-        result_path = os.path.join(RESULTS_FOLDER, engine_type.value + "_mem.json")
-        if not os.path.exists(result_path):
+        engine_result_path = os.path.join(result_path, engine_type.value + "_mem.json")
+        if not os.path.exists(engine_result_path):
             continue
 
-        with open(result_path, "r") as f:
+        with open(engine_result_path, "r") as f:
             results_json = json.load(f)
 
         engines_results_mem[engine_type] = results_json
@@ -189,7 +191,7 @@ def _plot_mem(
     fig, ax = plt.subplots(figsize=(6, 4))
     xlim = 0
     for engine_type, engine_value in engines_results_mem.items():
-        max_mem_usage = engine_value["max_mem_MB"] / 1024
+        max_mem_usage = engine_value["max_mem_GiB"]
         xlim = max(xlim, max_mem_usage)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
@@ -236,8 +238,8 @@ def main() -> None:
 
     result_dataset_path = os.path.join(RESULTS_FOLDER, dataset_name)
     _plot_accuracy(sorted_engines, result_dataset_path, os.path.join(save_path, dataset_name), args.show)
-    _plot_cpu(sorted_engines, save_path, args.show)
-    _plot_mem(sorted_engines, save_path, args.show)
+    _plot_mem(sorted_engines, result_dataset_path, save_path, args.show)
+    _plot_cpu(sorted_engines, result_dataset_path, save_path, args.show)
 
 
 if __name__ == "__main__":

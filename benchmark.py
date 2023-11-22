@@ -120,92 +120,46 @@ def _process_accuracy(engine: Engine, dataset: Dataset, verbose: bool = False) -
             f.write("\n")
 
 
-def _process_memory(
-        engine: Engines,
+WorkerResult = namedtuple(
+    'WorkerResult',
+    [
+        'total_audio_sec',
+        'process_time_sec',
+    ])
+
+
+def _process_worker(
+        engine_type: str,
         engine_params: Dict[str, Any],
-        dataset: Dataset,
-        verbose: bool = False) -> None:
-    WorkerResult = namedtuple(
-        'WorkerResult',
-        [
-            'total_audio_sec',
-            'process_time_per_core_sec',
-        ])
+        samples: Sequence[Tuple[str, str, float]]) -> WorkerResult:
+    engine = Engine.create(Engines(engine_type), **engine_params)
+    total_audio_sec = 0
 
-    def _process_worker(
-            engine_type: Engines,
-            engine_params: Dict[str, Any],
-            samples: Sequence[Tuple[str, str, float]]) -> WorkerResult:
-        engine = Engine.create(engine_type, **engine_params)
-        total_audio_sec = 0
+    print(f" len samples: {len(samples)}")
+    tic = perf_counter()
+    for sample in samples:
+        audio_path, _, audio_length = sample
+        print(f"Processing {audio_path}...")
+        total_audio_sec += audio_length
+        _ = engine.diarization(audio_path)
+    toc = perf_counter()
 
-        tic = perf_counter()
-        for sample in samples:
-            audio_path, _, audio_length = sample
-            total_audio_sec += audio_length
-            _ = engine.diarization(audio_path)
-        toc = perf_counter()
+    process_time = toc - tic
+    engine.cleanup()
+    print(f"Total audio time: {total_audio_sec} sec")
+    return WorkerResult(total_audio_sec, process_time)
 
-        process_time = toc - tic
-        engine.cleanup()
-        return WorkerResult(total_audio_sec, process_time)
-
-    num_workers = psutil.cpu_count(logical=False)
-    print(f"Using {num_workers} workers")
-
-    samples = list(dataset.samples[:])
-    samples = samples[:2]
-    chunk_size = math.ceil(len(samples) / num_workers)
-    futures = []
-
-    with ProcessPoolExecutor(max_workers=num_workers) as executor:
-        for i in range(num_workers):
-            chunk = samples[i * chunk_size: (i + 1) * chunk_size]
-            future = executor.submit(
-                _process_worker,
-                engine_type=Engines(engine.value),
-                engine_params=engine_params,
-                samples=chunk)
-            futures.append(future)
-
-    res = [f.results() for f in futures]
 
 
 def _process_cpu(
-        engine: Engines,
+        engine: str,
         engine_params: Dict[str, Any],
-        dataset: Dataset,
-        verbose: bool = False) -> None:
-    WorkerResult = namedtuple(
-        'WorkerResult',
-        [
-            'total_audio_sec',
-            'process_time_per_core_sec',
-        ])
-
-    def _process_worker(
-            engine_type: Engines,
-            engine_params: Dict[str, Any],
-            samples: Sequence[Tuple[str, str, float]]) -> WorkerResult:
-        engine = Engine.create(engine_type, **engine_params)
-        total_audio_sec = 0
-
-        tic = perf_counter()
-        for sample in samples:
-            audio_path, _, audio_length = sample
-            total_audio_sec += audio_length
-            _ = engine.diarization(audio_path)
-        toc = perf_counter()
-
-        process_time = toc - tic
-        engine.cleanup()
-        return WorkerResult(total_audio_sec, process_time)
+        dataset: Dataset) -> None:
 
     num_workers = psutil.cpu_count(logical=False)
-    print(f"Using {num_workers} workers")
 
     samples = list(dataset.samples[:])
-    samples = samples[:2]
+    samples = samples[:8]
     chunk_size = math.ceil(len(samples) / num_workers)
     futures = []
 
@@ -214,14 +168,14 @@ def _process_cpu(
             chunk = samples[i * chunk_size: (i + 1) * chunk_size]
             future = executor.submit(
                 _process_worker,
-                engine_type=Engines(engine.value),
+                engine_type=engine,
                 engine_params=engine_params,
                 samples=chunk)
             futures.append(future)
 
-    res = [f.results() for f in futures]
+    res = [f.result() for f in futures]
     total_audio_time_sec = sum([r.total_audio_sec for r in res])
-    total_process_time_sec = sum([r.process_time_per_core_sec for r in res])
+    total_process_time_sec = sum([r.process_time_sec for r in res])
 
     results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
     results = {
@@ -233,6 +187,40 @@ def _process_cpu(
         json.dump(results, f, indent=2)
 
 
+def _process_mem(
+        engine: str,
+        engine_params: Dict[str, Any],
+        dataset: Dataset) -> None:
+
+    num_workers = psutil.cpu_count(logical=False)
+
+    samples = list(dataset.samples[:])
+    samples = samples[:20]
+    chunk_size = math.ceil(len(samples) / num_workers)
+    futures = []
+
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        for i in range(num_workers):
+            chunk = samples[i * chunk_size: (i + 1) * chunk_size]
+            future = executor.submit(
+                _process_worker,
+                engine_type=engine,
+                engine_params=engine_params,
+                samples=chunk)
+            futures.append(future)
+
+    res = [f.results() for f in futures]
+    total_audio_time_sec = sum([r.total_audio_sec for r in res])
+    total_process_time_sec = sum([r.process_time_sec for r in res])
+
+    results_path = os.path.join(RESULTS_FOLDER, str(dataset), f"{str(engine)}_cpu.json")
+    results = {
+        "total_audio_time_sec": total_audio_time_sec,
+        "total_process_time_sec": total_process_time_sec,
+        "num_workers": num_workers,
+    }
+    with open(results_path, "w") as f:
+        json.dump(results, f, indent=2)
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)
@@ -265,17 +253,14 @@ def main() -> None:
 
     if args.type == BenchmarkTypes.ACCURACY.value:
         _process_accuracy(engine, dataset, verbose=args.verbose)
-    elif args.type == BenchmarkTypes.MEMORY.value:
-        if not engine.is_offline():
-            raise ValueError(f"Memory benchmark is only supported for offline engines")
-
-        _process_memory(Engines(args.engine), engine_args, dataset, verbose=args.verbose)
     elif args.type == BenchmarkTypes.CPU.value:
         if not engine.is_offline():
             raise ValueError(f"CPU benchmark is only supported for offline engines")
-
-        _process_cpu(Engines(args.engine), engine_args, dataset, verbose=args.verbose)
-
+        _process_cpu(args.engine, engine_args, dataset)
+    elif args.type == BenchmarkTypes.MEMORY.value:
+        if not engine.is_offline():
+            raise ValueError(f"Memory benchmark is only supported for offline engines")
+        _process_mem(args.engine, engine_args, dataset)
 
 if __name__ == "__main__":
     main()
