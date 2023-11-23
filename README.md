@@ -228,9 +228,9 @@ RAM, and NVMe storage.
 
 ### Core-Hour
 
-|      Engine      | Audio Processed (hours) |
-|:----------------:|:-----------------------:|
-|  pyannote.audio  |          0.23           |
-| Picovoice Falcon |          25.49          |
+|      Engine      | Core-Hour |
+|:----------------:|:---------:|
+|  pyannote.audio  |  441.85   |
+| Picovoice Falcon |   3.92    |
 
 ![](./results/plots/cpu_usage_comparison.png)
