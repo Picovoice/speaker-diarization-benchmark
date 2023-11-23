@@ -212,7 +212,6 @@ RAM, and NVMe storage.
 |       Azure       |        30.09%         | 
 |      Google       |        83.36%         |
 | Google - Enhanced |        57.57%         |
-|    NVIDIA NeMo    |        57.57%         | 
 | Picovoice Falcon  |        19.92%         |
 |  pyannote.audio   |        27.45%         |
 
