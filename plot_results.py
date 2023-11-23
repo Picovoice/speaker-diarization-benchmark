@@ -140,24 +140,24 @@ def _plot_cpu(
         engines_results_cpu[engine_type] = results_json
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    xlim = 0
+    x_limit = 0
     num_workers = dict()
     for engine_type, engine_value in engines_results_cpu.items():
-        processing_capacity = engine_value["total_audio_time_sec"] / engine_value["total_process_time_sec"]
+        core_hour = engine_value["total_process_time_sec"] / engine_value["total_audio_time_sec"] * 100
         num_workers[engine_type] = engine_value["num_workers"]
-        xlim = max(xlim, processing_capacity)
+        x_limit = max(x_limit, core_hour)
         ax.barh(
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
-            processing_capacity,
+            core_hour,
             height=0.5,
             color=ENGINE_COLORS.get(engine_type, WHITE),
             edgecolor="none",
             label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
         )
         ax.text(
-            processing_capacity + 3,
+            core_hour + 50,
             ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
-            f"{processing_capacity:.2f}\nhours",
+            f"{core_hour:.2f}\nCore-hour",
             ha="center",
             va="center",
             fontsize=12,
@@ -167,10 +167,10 @@ def _plot_cpu(
     ax.spines["top"].set_visible(False)
     ax.spines["bottom"].set_visible(False)
     ax.spines["right"].set_visible(False)
-    plt.xlim([0, xlim + 5])
+    plt.xlim([0, x_limit + 50])
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
-    plt.title("Audio Processing Capacity per Core-Hour", fontsize=12)
+    plt.title("Core-hour required to process 100 hours of audio", fontsize=12)
     plt.savefig(os.path.join(save_path, "cpu_usage_comparison.png"))
 
     if show:
