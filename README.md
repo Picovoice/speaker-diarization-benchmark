@@ -206,14 +206,15 @@ RAM, and NVMe storage.
 
 ### Jaccard Error Rate (JER)
 
-|        Engine         | VoxConverse (English) |
-|:---------------------:|:---------------------:|
-|   Amazon Transcribe   |        29.83%         |
-| Azure Speech-to-Text  |        30.09%         | 
-| Google Speech-to-Text |        83.36%         |
-|      NVIDIA NeMo      |        57.57%         | 
-|   Picovoice Falcon    |        19.92%         |
-|    pyannote.audio     |        27.45%         |
+|      Engine       | VoxConverse (English) |
+|:-----------------:|:---------------------:|
+|      Amazon       |        29.83%         |
+|       Azure       |        30.09%         | 
+|      Google       |        83.36%         |
+| Google - Enhanced |        57.57%         |
+|    NVIDIA NeMo    |        57.57%         | 
+| Picovoice Falcon  |        19.92%         |
+|  pyannote.audio   |        27.45%         |
 
 ![](./results/plots/VoxConverse/jaccard_error_rate.png)
 
