@@ -103,7 +103,7 @@ def _plot_accuracy(
                 color=ENGINE_COLORS[engine_type],
             )
 
-        ax.set_ylabel(metric.title(), fontsize=12)
+        ax.set_ylabel(f"{metric.title()} (lower is better)", fontsize=12)
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_visible(False)
@@ -167,7 +167,7 @@ def _plot_cpu(
     plt.xlim([0, x_limit + 50])
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
-    plt.title("Core-hour required to process 100 hours of audio", fontsize=12)
+    plt.title("Core-hour required to process 100 hours of audio (lower is better)", fontsize=12)
     plot_path = os.path.join(save_path, "cpu_usage_comparison.png")
     os.makedirs(os.path.dirname(plot_path), exist_ok=True)
     plt.savefig(plot_path)
@@ -226,7 +226,7 @@ def _plot_mem(
     ax.spines["right"].set_visible(False)
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
-    plt.title("Total Memory Usage per instance", fontsize=12)
+    plt.title("Total Memory Usage per instance (lower in better)", fontsize=12)
     plot_path = os.path.join(save_path, "mem_usage_comparison.png")
     os.makedirs(os.path.dirname(plot_path), exist_ok=True)
     plt.savefig(plot_path)
