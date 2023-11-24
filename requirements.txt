@@ -2,6 +2,7 @@ azure.storage.blob
 boto3
 google-cloud-speech
 google-cloud-storage
+matplotlib
 omegaconf
 protobuf
 pvfalcon

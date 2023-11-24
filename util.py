@@ -1,7 +1,8 @@
 from collections import defaultdict
-from typing import Sequence, Dict, Tuple, Any
-from pyannote.core import Segment, Annotation
+from typing import Sequence, Dict, Tuple
+
 import soundfile as sf
+from pyannote.core import Segment, Annotation
 
 RTTM = Dict[str, Sequence[Tuple[str, float, float]]]
 

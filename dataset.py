@@ -14,7 +14,7 @@ class Datasets(Enum):
     VOX_CONVERSE = "VoxConverse"
 
 
-class Dataset(object):
+class Dataset:
     @property
     def size(self) -> int:
         raise NotImplementedError()
@@ -42,7 +42,7 @@ class Dataset(object):
 
 class VoxConverse(Dataset):
     def __init__(self, data_folder: str, label_folder: str, only_en: bool = True) -> None:
-        en_audio_files = [
+        en_audio_files = {
             "aepyx.wav", "aggyz.wav", "aiqwk.wav", "aorju.wav", "auzru.wav", "bjruf.wav", "bmsyn.wav", "bvqnu.wav",
             "bvyvm.wav", "bxcfq.wav", "cadba.wav", "cawnd.wav", "clfcg.wav", "cpebh.wav", "cqfmj.wav", "crorm.wav",
             "crylr.wav", "cvofp.wav", "dgvwu.wav", "dkabn.wav", "dlast.wav", "dohag.wav", "dxbbt.wav", "dxokr.wav",
@@ -68,7 +68,7 @@ class VoxConverse(Dataset):
             "xqxkt.wav", "xtdcl.wav", "xtzoq.wav", "xvxwv.wav", "ybhwz.wav", "ygrip.wav", "ylgug.wav", "ytmef.wav",
             "ytula.wav", "yukhy.wav", "zedtj.wav", "zehzu.wav", "zowse.wav", "zqidv.wav", "zsgto.wav", "zzsba.wav",
             "zztbo.wav",
-        ]
+        }
         self._samples = list()
 
         files = glob.iglob(os.path.join(data_folder, "*.wav"))

@@ -49,8 +49,8 @@ It presents the total memory utilized, measured in gigabytes (GB).
 
 ### Core-Hour
 
-The Core-Hour metric is used to evaluate the computational efficiency of the diarization engine. This metric indicates
-how much audio can be processed in an hour using a single CPU core.
+The Core-Hour metric is used to evaluate the computational efficiency of the diarization engine, indicating the number
+of hours required to process one hour of audio on a single CPU core. 
 
 > [!NOTE]
 > `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.

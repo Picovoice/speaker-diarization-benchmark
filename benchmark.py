@@ -26,29 +26,30 @@ class BenchmarkTypes(Enum):
 
 def _engine_params_parser(in_args: argparse.Namespace) -> Dict[str, Any]:
     kwargs_engine = dict()
-    if in_args.engine == Engines.PICOVOICE_FALCON.value:
+    engine = Engines(in_args.engine)
+    if engine is Engines.PICOVOICE_FALCON:
         if in_args.picovoice_access_key is None:
             raise ValueError(f"Engine {in_args.engine} requires --picovoice-access-key")
         kwargs_engine.update(access_key=in_args.picovoice_access_key)
-    elif in_args.engine == Engines.PYANNOTE.value:
+    elif engine is Engines.PYANNOTE:
         if in_args.pyannote_auth_token is None:
             raise ValueError(f"Engine {in_args.engine} requires --pyannote-auth-token")
         kwargs_engine.update(auth_token=in_args.pyannote_auth_token)
-    elif in_args.engine == Engines.AWS_TRANSCRIBE.value:
+    elif engine is Engines.AWS_TRANSCRIBE:
         if in_args.aws_profile is None:
             raise ValueError(f"Engine {in_args.engine} requires --aws-profile")
         os.environ["AWS_PROFILE"] = in_args.aws_profile
         if in_args.aws_s3_bucket_name is None:
             raise ValueError(f"Engine {in_args.engine} requires --aws-s3-bucket-name")
         kwargs_engine.update(bucket_name=in_args.aws_s3_bucket_name)
-    elif in_args.engine in [Engines.GOOGLE_SPEECH_TO_TEXT.value, Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED.value]:
+    elif engine in [Engines.GOOGLE_SPEECH_TO_TEXT, Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED]:
         if in_args.gcp_credentials is None:
             raise ValueError(f"Engine {in_args.engine} requires --gcp-credentials")
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = in_args.gcp_credentials
         if in_args.gcp_bucket_name is None:
             raise ValueError(f"Engine {in_args.engine} requires --gcp-bucket-name")
         kwargs_engine.update(bucket_name=in_args.gcp_bucket_name)
-    elif in_args.engine == Engines.AZURE_SPEECH_TO_TEXT.value:
+    elif engine is Engines.AZURE_SPEECH_TO_TEXT:
         if in_args.azure_storage_account_name is None:
             raise ValueError(f"Engine {in_args.engine} requires --azure-storage-account-name")
         if in_args.azure_storage_account_key is None:
@@ -99,7 +100,7 @@ def _process_accuracy(engine: Engine, dataset: Dataset, verbose: bool = False) -
                 res = metric(ground_truth, hypothesis, detailed=True)
                 if verbose:
                     print(f"{metric.name}: {res}")
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         print("Stopping benchmark...")
 
     results = dict()
@@ -127,7 +128,7 @@ WorkerResult = namedtuple(
 def _process_worker(
         engine_type: str,
         engine_params: Dict[str, Any],
-        samples: Sequence[Tuple[str, str, float]]) -> WorkerResult:
+        samples: Sequence[Sample]) -> WorkerResult:
     engine = Engine.create(Engines(engine_type), **engine_params)
     total_audio_sec = 0
     process_time = 0
@@ -217,7 +218,7 @@ def main() -> None:
         _process_accuracy(engine, dataset, verbose=args.verbose)
     elif args.type == BenchmarkTypes.CPU.value:
         if not engine.is_offline():
-            raise ValueError(f"CPU benchmark is only supported for offline engines")
+            raise ValueError("CPU benchmark is only supported for offline engines")
         _process_pool(
             engine=args.engine,
             engine_params=engine_args,
@@ -225,7 +226,7 @@ def main() -> None:
             num_samples=args.num_samples)
     elif args.type == BenchmarkTypes.MEMORY.value:
         if not engine.is_offline():
-            raise ValueError(f"Memory benchmark is only supported for offline engines")
+            raise ValueError("Memory benchmark is only supported for offline engines")
         print("Please make sure the `mem_monitor.py` script is running and then press enter to continue...")
         input()
         _process_pool(

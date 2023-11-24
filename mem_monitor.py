@@ -7,14 +7,6 @@ from benchmark import RESULTS_FOLDER
 from dataset import *
 from engine import *
 
-WorkerResult = namedtuple(
-    'WorkerResult',
-    [
-        'total_audio_time',
-        'process_time_per_core',
-    ])
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=[ds.value for ds in Datasets], required=True)

@@ -11,12 +11,6 @@ from engine import Engines
 
 Color = Tuple[float, float, float]
 
-import matplotlib
-
-fm = matplotlib.font_manager
-fm._get_fontconfig_fonts.cache_clear()
-
-
 def rgb_from_hex(x: str) -> Color:
     x = x.strip("# ")
     assert len(x) == 6
@@ -82,7 +76,7 @@ def _plot_accuracy(
     for metric in METRIC_NAME:
         fig, ax = plt.subplots(figsize=(6, 4))
         for engine_type in engine_list:
-            engine_result_path = os.path.join(result_path, engine_type.value + ".json")
+            engine_result_path = os.path.join(result_path, f"{engine_type.value}.json")
             if not os.path.exists(engine_result_path):
                 continue
 
@@ -91,21 +85,21 @@ def _plot_accuracy(
 
             engine_value = results_json[metric] * 100
             ax.bar(
-                ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+                ENGINE_PRINT_NAMES[engine_type],
                 engine_value,
                 width=0.5,
-                color=ENGINE_COLORS.get(engine_type, WHITE),
+                color=ENGINE_COLORS[engine_type],
                 edgecolor="none",
-                label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+                label=ENGINE_PRINT_NAMES[engine_type]
             )
             ax.text(
-                ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+                ENGINE_PRINT_NAMES[engine_type],
                 engine_value + 1,
                 f"{engine_value:.2f}%",
                 ha="center",
                 va="bottom",
                 fontsize=12,
-                color=ENGINE_COLORS.get(engine_type, BLACK),
+                color=ENGINE_COLORS[engine_type],
             )
 
         ax.set_ylabel(metric.title(), fontsize=12)
@@ -116,6 +110,7 @@ def _plot_accuracy(
         plot_path = os.path.join(save_path, metric.replace(" ", "_") + ".png")
         os.makedirs(os.path.dirname(plot_path), exist_ok=True)
         plt.savefig(plot_path)
+        print(f"Saved plot to {plot_path}")
 
         if show:
             plt.show()
@@ -147,21 +142,21 @@ def _plot_cpu(
         num_workers[engine_type] = engine_value["num_workers"]
         x_limit = max(x_limit, core_hour)
         ax.barh(
-            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            ENGINE_PRINT_NAMES[engine_type],
             core_hour,
             height=0.5,
-            color=ENGINE_COLORS.get(engine_type, WHITE),
+            color=ENGINE_COLORS[engine_type],
             edgecolor="none",
-            label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            label=ENGINE_PRINT_NAMES[engine_type],
         )
         ax.text(
             core_hour + 50,
-            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            ENGINE_PRINT_NAMES[engine_type],
             f"{core_hour:.2f}\nCore-hour",
             ha="center",
             va="center",
             fontsize=12,
-            color=ENGINE_COLORS.get(engine_type, BLACK),
+            color=ENGINE_COLORS[engine_type],
         )
 
     ax.spines["top"].set_visible(False)
@@ -171,7 +166,10 @@ def _plot_cpu(
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
     plt.title("Core-hour required to process 100 hours of audio", fontsize=12)
-    plt.savefig(os.path.join(save_path, "cpu_usage_comparison.png"))
+    plot_path = os.path.join(save_path, "cpu_usage_comparison.png")
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.savefig(plot_path)
+    print(f"Saved plot to {plot_path}")
 
     if show:
         plt.show()
@@ -203,21 +201,21 @@ def _plot_mem(
     for engine_type, engine_value in engines_results_mem.items():
         max_mem_usage = engine_value["max_mem_GiB"] / num_workers[engine_type]
         ax.barh(
-            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            ENGINE_PRINT_NAMES[engine_type],
             max_mem_usage,
             height=0.5,
-            color=ENGINE_COLORS.get(engine_type, WHITE),
+            color=ENGINE_COLORS[engine_type],
             edgecolor="none",
-            label=ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            label=ENGINE_PRINT_NAMES[engine_type],
         )
         ax.text(
             max_mem_usage + 0.15,
-            ENGINE_PRINT_NAMES.get(engine_type, engine_type.value),
+            ENGINE_PRINT_NAMES[engine_type],
             f"{max_mem_usage:.2f}GiB",
             ha="center",
             va="center",
             fontsize=12,
-            color=ENGINE_COLORS.get(engine_type, BLACK),
+            color=ENGINE_COLORS[engine_type],
         )
 
     ax.spines["top"].set_visible(False)
@@ -226,7 +224,10 @@ def _plot_mem(
     ax.set_xticks([])
     ax.set_ylim([-0.5, 1.5])
     plt.title("Total Memory Usage per instance", fontsize=12)
-    plt.savefig(os.path.join(save_path, "mem_usage_comparison.png"))
+    plot_path = os.path.join(save_path, "mem_usage_comparison.png")
+    os.makedirs(os.path.dirname(plot_path), exist_ok=True)
+    plt.savefig(plot_path)
+    print(f"Saved plot to {plot_path}")
 
     if show:
         plt.show()
@@ -243,7 +244,6 @@ def main() -> None:
     sorted_engines = sorted(ENGINES, key=lambda e: (ENGINE_ORDER_KEYS.get(e, 1), ENGINE_PRINT_NAMES.get(e, e.value)))
 
     save_path = os.path.join(RESULTS_FOLDER, "plots")
-    os.makedirs(save_path, exist_ok=True)
 
     result_dataset_path = os.path.join(RESULTS_FOLDER, dataset_name)
     _plot_accuracy(sorted_engines, result_dataset_path, os.path.join(save_path, dataset_name), args.show)
