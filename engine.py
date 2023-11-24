@@ -16,12 +16,8 @@ from azure.storage.blob import BlobServiceClient, ResourceTypes, AccountSasPermi
 from google.cloud import speech
 from google.cloud import storage
 from google.protobuf.json_format import MessageToDict
-from omegaconf import OmegaConf
 from pyannote.audio import Pipeline
 from pyannote.core import Annotation, Segment
-from simple_diarizer.diarizer import Diarizer
-
-from util import load_rttm, rttm_to_annotation
 
 NUM_THREADS = 1
 os.environ["OMP_NUM_THREADS"] = str(NUM_THREADS)
@@ -40,7 +36,7 @@ class Engines(Enum):
     SIMPLE_DIARIZER = "SIMPLE_DIARIZER"
 
 
-class Engine(object):
+class Engine:
     def diarization(self, path: str) -> "Annotation":
         raise NotImplementedError()
 
