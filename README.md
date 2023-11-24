@@ -50,7 +50,7 @@ It presents the total memory utilized, measured in gigabytes (GB).
 ### Core-Hour
 
 The Core-Hour metric is used to evaluate the computational efficiency of the diarization engine, indicating the number
-of hours required to process one hour of audio on a single CPU core. 
+of hours required to process one hour of audio on a single CPU core.
 
 > [!NOTE]
 > `Total Memory Usage` and `Core-Hour` metrics are not applicable to cloud-based engines.
@@ -195,12 +195,12 @@ RAM, and NVMe storage.
 
 |      Engine       | VoxConverse (English) |
 |:-----------------:|:---------------------:|
-|      Amazon       |        11.05%         |
-|       Azure       |        15.69%         |
-|      Google       |        50.16%         |
-| Google - Enhanced |        23.98%         |
-| Picovoice Falcon  |        10.34%         |
-|  pyannote.audio   |         8.95%         |
+|      Amazon       |         11.1%         |
+|       Azure       |         15.7%         |
+|      Google       |         50.2%         |
+| Google - Enhanced |         24.0%         |
+| Picovoice Falcon  |         10.3%         |
+|  pyannote.audio   |         9.0%          |
 
 ![](./results/plots/VoxConverse/diarization_error_rate.png)
 
@@ -208,12 +208,12 @@ RAM, and NVMe storage.
 
 |      Engine       | VoxConverse (English) |
 |:-----------------:|:---------------------:|
-|      Amazon       |        29.83%         |
-|       Azure       |        30.09%         | 
-|      Google       |        83.36%         |
-| Google - Enhanced |        57.57%         |
-| Picovoice Falcon  |        19.92%         |
-|  pyannote.audio   |        27.45%         |
+|      Amazon       |         29.8%         |
+|       Azure       |         30.1%         | 
+|      Google       |         83.4%         |
+| Google - Enhanced |         57.6%         |
+| Picovoice Falcon  |         19.9%         |
+|  pyannote.audio   |         27.4%         |
 
 ![](./results/plots/VoxConverse/jaccard_error_rate.png)
 
@@ -221,8 +221,8 @@ RAM, and NVMe storage.
 
 |      Engine      | Memory Usage (GB) |
 |:----------------:|:-----------------:|
-|  pyannote.audio  |       1.52        |
-| Picovoice Falcon |       0.13        |
+|  pyannote.audio  |        1.5        |
+| Picovoice Falcon |        0.1        |
 
 ![](./results/plots/mem_usage_comparison.png)
 
@@ -230,7 +230,7 @@ RAM, and NVMe storage.
 
 |      Engine      | Core-Hour |
 |:----------------:|:---------:|
-|  pyannote.audio  |  441.85   |
-| Picovoice Falcon |   3.92    |
+|  pyannote.audio  |    442    |
+| Picovoice Falcon |     4     |
 
 ![](./results/plots/cpu_usage_comparison.png)

@@ -84,6 +84,7 @@ def _plot_accuracy(
                 results_json = json.load(f)
 
             engine_value = results_json[metric] * 100
+            engine_value = round(engine_value, 1)
             ax.bar(
                 ENGINE_PRINT_NAMES[engine_type],
                 engine_value,
@@ -95,7 +96,7 @@ def _plot_accuracy(
             ax.text(
                 ENGINE_PRINT_NAMES[engine_type],
                 engine_value + 1,
-                f"{engine_value:.2f}%",
+                f"{engine_value:.1f}%",
                 ha="center",
                 va="bottom",
                 fontsize=12,
@@ -139,6 +140,7 @@ def _plot_cpu(
     num_workers = dict()
     for engine_type, engine_value in engines_results_cpu.items():
         core_hour = engine_value["total_process_time_sec"] / engine_value["total_audio_time_sec"] * 100
+        core_hour = round(core_hour, 0)
         num_workers[engine_type] = engine_value["num_workers"]
         x_limit = max(x_limit, core_hour)
         ax.barh(
@@ -152,7 +154,7 @@ def _plot_cpu(
         ax.text(
             core_hour + 50,
             ENGINE_PRINT_NAMES[engine_type],
-            f"{core_hour:.2f}\nCore-hour",
+            f"{core_hour:.0f}\nCore-hour",
             ha="center",
             va="center",
             fontsize=12,
@@ -200,6 +202,7 @@ def _plot_mem(
     fig, ax = plt.subplots(figsize=(6, 4))
     for engine_type, engine_value in engines_results_mem.items():
         max_mem_usage = engine_value["max_mem_GiB"] / num_workers[engine_type]
+        max_mem_usage = round(max_mem_usage, 1)
         ax.barh(
             ENGINE_PRINT_NAMES[engine_type],
             max_mem_usage,
@@ -211,7 +214,7 @@ def _plot_mem(
         ax.text(
             max_mem_usage + 0.15,
             ENGINE_PRINT_NAMES[engine_type],
-            f"{max_mem_usage:.2f}GiB",
+            f"{max_mem_usage:.1f}GiB",
             ha="center",
             va="center",
             fontsize=12,
