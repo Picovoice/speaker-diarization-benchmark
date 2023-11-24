@@ -33,7 +33,6 @@ class Engines(Enum):
     GOOGLE_SPEECH_TO_TEXT_ENHANCED = "GOOGLE_SPEECH_TO_TEXT_ENHANCED"
     PICOVOICE_FALCON = "PICOVOICE_FALCON"
     PYANNOTE = "PYANNOTE"
-    SIMPLE_DIARIZER = "SIMPLE_DIARIZER"
 
 
 class Engine:
@@ -59,7 +58,6 @@ class Engine:
                 Engines.GOOGLE_SPEECH_TO_TEXT_ENHANCED: GoogleSpeechToTextEnhancedEngine,
                 Engines.PICOVOICE_FALCON: PicovoiceFalconEngine,
                 Engines.PYANNOTE: PyAnnoteEngine,
-                Engines.SIMPLE_DIARIZER: SimpleDiarizerEngine,
             }[x]
         except KeyError:
             raise ValueError(f"cannot create `{cls.__name__}` of type `{x.value}`")
