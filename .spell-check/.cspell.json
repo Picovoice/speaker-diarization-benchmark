@@ -1,0 +1,22 @@
+{
+  "language": "en",
+  "dictionaries": [
+    "dict"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "dict",
+      "path": "./dict.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": [
+    // binaries
+    "**/*.dll",
+    "**/*.dylib",
+    "**/*.mp3",
+    "**/*.pv",
+    "**/*.so",
+    "**/*.wav",
+  ]
+}
