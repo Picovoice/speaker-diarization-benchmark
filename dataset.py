@@ -42,6 +42,7 @@ class Dataset:
 
 class VoxConverse(Dataset):
     def __init__(self, data_folder: str, label_folder: str, only_en: bool = True) -> None:
+        # / *spell - checker: disable * /
         en_audio_files = {
             "aepyx.wav", "aggyz.wav", "aiqwk.wav", "aorju.wav", "auzru.wav", "bjruf.wav", "bmsyn.wav", "bvqnu.wav",
             "bvyvm.wav", "bxcfq.wav", "cadba.wav", "cawnd.wav", "clfcg.wav", "cpebh.wav", "cqfmj.wav", "crorm.wav",
@@ -69,6 +70,7 @@ class VoxConverse(Dataset):
             "ytula.wav", "yukhy.wav", "zedtj.wav", "zehzu.wav", "zowse.wav", "zqidv.wav", "zsgto.wav", "zzsba.wav",
             "zztbo.wav",
         }
+        # / *spell - checker: enable * /
         self._samples = list()
 
         files = glob.iglob(os.path.join(data_folder, "*.wav"))

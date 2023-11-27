@@ -199,7 +199,6 @@ def main() -> None:
     parser.add_argument("--azure-subscription-key")
     parser.add_argument("--gcp-bucket-name")
     parser.add_argument("--gcp-credentials")
-    parser.add_argument("--nemo-model-config")
     parser.add_argument("--picovoice-access-key")
     parser.add_argument("--pyannote-auth-token")
     parser.add_argument("--type", choices=[bt.value for bt in BenchmarkTypes], required=True)

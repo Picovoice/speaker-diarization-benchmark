@@ -9,7 +9,6 @@ pvfalcon
 pyannote.audio
 pyannote.metrics
 requests
-simple-diarizer
 soundfile
 torch
 tqdm
