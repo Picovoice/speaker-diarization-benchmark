@@ -20,8 +20,12 @@ psutil
 pvfalcon
 pyannote
 rttm
+samplerate
 soundfile
 tqdm
 xlim
 xticks
 ylabel
+diariazation
+yticks
+ylim

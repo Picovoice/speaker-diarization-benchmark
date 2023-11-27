@@ -167,7 +167,7 @@ python3 benchmark.py \
 --dataset ${DATASET} \
 --data-folder ${DATA_FOLDER} \
 --label-folder ${LABEL_FOLDER} \
---engine PICVOICE_FALCON \
+--engine PICOVOICE_FALCON \
 --picovoice-access-key ${PICOVOICE_ACCESS_KEY}
 ```
 

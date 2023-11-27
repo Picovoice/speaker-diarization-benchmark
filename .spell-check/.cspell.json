@@ -19,5 +19,11 @@
     "**/*.so",
     "**/*.wav",
     "**/*.json",
+    "**/cache/**",
+    "**/results/**",
+    "**/env/**",
+    "**/pretrained_models/**",
+    "**/tmp/**",
+    "**/__pycache__/**",
   ]
 }
