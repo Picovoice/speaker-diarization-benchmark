@@ -219,6 +219,10 @@ RAM, and NVMe storage.
 
 ### Total Memory Usage
 
+To obtain these results, we ran the benchmark across the entire 'VoxConverse' dataset and recorded the maximum memory
+usage during that period. As conversations involve varying lengths and numbers of speakers, this method provides us with
+a reliable estimation of the memory usage of each engine.
+
 |      Engine      | Memory Usage (GB) |
 |:----------------:|:-----------------:|
 |  pyannote.audio  |        1.5        |
