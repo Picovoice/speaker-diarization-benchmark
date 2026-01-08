@@ -58,7 +58,7 @@ of hours required to process one hour of audio on a single CPU core.
 ## Engines
 
 - [Amazon Transcribe](https://aws.amazon.com/transcribe/)
-- [Azure Speech-to-Text](https://azure.microsoft.com/en-us/services/cognitive-services/speech-to-text/)
+- [Azure Speech-to-Text](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-to-text)
 - [Google Speech-to-Text](https://cloud.google.com/speech-to-text)
 - [Picovoice Falcon](https://picovoice.ai/)
 - [pyannote.audio](https://github.com/pyannote/pyannote-audio)
