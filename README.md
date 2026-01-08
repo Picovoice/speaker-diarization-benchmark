@@ -58,14 +58,14 @@ of hours required to process one hour of audio on a single CPU core.
 ## Engines
 
 - [Amazon Transcribe](https://aws.amazon.com/transcribe/)
-- [Azure Speech-to-Text](https://azure.microsoft.com/en-us/services/cognitive-services/speech-to-text/)
+- [Azure Speech-to-Text](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-to-text)
 - [Google Speech-to-Text](https://cloud.google.com/speech-to-text)
 - [Picovoice Falcon](https://picovoice.ai/)
 - [pyannote.audio](https://github.com/pyannote/pyannote-audio)
 
 ## Usage
 
-This benchmark has been developed and tested on `Ubuntu 20.04` using `Python 3.8`.
+This benchmark has been developed and tested on `Ubuntu 24.04` using `Python 3.8`.
 
 1. Set up your dataset as described in the [Data](#data) section.
 2. Install the requirements:
@@ -188,7 +188,7 @@ python3 benchmark.py \
 
 ## Results
 
-Measurement is carried on an `Ubuntu 20.04` machine with AMD CPU (`AMD Ryzen 7 5700X (16) @ 3.400G`), 64 GB of
+Measurement is carried on an `Ubuntu 24.04` machine with AMD CPU (`AMD Ryzen 7 5700X (16) @ 3.400G`), 64 GB of
 RAM, and NVMe storage.
 
 ### Diarization Error Rate (DER)
@@ -209,7 +209,7 @@ RAM, and NVMe storage.
 |      Engine       | VoxConverse (English) |
 |:-----------------:|:---------------------:|
 |      Amazon       |         29.8%         |
-|       Azure       |         30.1%         | 
+|       Azure       |         30.1%         |
 |      Google       |         83.4%         |
 | Google - Enhanced |         57.6%         |
 | Picovoice Falcon  |         19.9%         |
@@ -235,6 +235,6 @@ a reliable estimation of the memory usage of each engine.
 |      Engine      | Core-Hour |
 |:----------------:|:---------:|
 |  pyannote.audio  |    442    |
-| Picovoice Falcon |     4     |
+| Picovoice Falcon |     2     |
 
 ![](./results/plots/cpu_usage_comparison.png)

@@ -10,8 +10,10 @@ diarization
 edgecolor
 figsize
 fontsize
+huggingface
 jaccard
 matplotlib
+numpy
 omegaconf
 picovoice
 pretrained
