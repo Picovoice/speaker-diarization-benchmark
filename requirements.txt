@@ -13,4 +13,4 @@ pyannote.metrics==3.2.1
 requests
 soundfile
 torch==2.1.1
-tqdm==4.66.1
+tqdm==4.66.3
